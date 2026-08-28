@@ -1,0 +1,39 @@
+{
+  "name": "herdr-worktree",
+  "version": "1.0.0",
+  "description": "Unified workplace-agnostic Git worktree and Herdr workspace orchestrator with pluggable project presets",
+  "main": "index.js",
+  "bin": {
+    "herdr-worktree": "./bin/cli.js",
+    "herder-worktree": "./bin/cli.js",
+    "hwk": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "presets",
+    "skills",
+    "index.js",
+    "types.d.ts",
+    "worktree.schema.json",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "git",
+    "worktree",
+    "herdr",
+    "workspace",
+    "laravel",
+    "node",
+    "cli"
+  ],
+  "author": "",
+  "license": "ISC"
+}
+

@@ -1,0 +1,18 @@
+{
+  "$schema": "../worktree.schema.json",
+  "preset": "laravel",
+  "repo": {
+    "bareRepo": "/var/app/ZoomRPM.git",
+    "worktreesBase": "/var/app/ZoomRPM-worktrees",
+    "defaultBaseBranch": "prod",
+    "protectedBranches": ["staging", "prod", "master"]
+  },
+  "workspace": {
+    "labelPrefix": "[BE] ",
+    "defaultFocus": "agy"
+  },
+  "scaffold": {
+    "envSource": "/var/app/ZoomRPM-shared/.env",
+    "symlink": "/var/app/ZoomRPM"
+  }
+}

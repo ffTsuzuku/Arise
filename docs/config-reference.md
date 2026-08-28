@@ -1,0 +1,69 @@
+# Configuration File Reference (`.worktreerc.json` / `worktree.config.js`)
+
+`herdr-worktree` allows project-level and user-level configuration files to override preset defaults, topology paths, and terminal layouts.
+
+---
+
+## File Resolution Order
+
+1. `./.worktreerc.js` or `./worktree.config.js` (Current Directory)
+2. `./.worktreerc.json` or `./.worktreerc` (Current Directory)
+3. `<repoRoot>/.worktreerc.json` (Repository Root)
+4. `~/.config/herdr-worktree/config.js` (User Global Config)
+5. `~/.worktreerc.json` (User Home Directory)
+
+---
+
+## Configuration Schema & Options
+
+### `preset` (string)
+The preset to use (`'node'`, `'laravel'`, `'generic'`, etc.). When omitted, `herdr-worktree` auto-detects the preset from file markers.
+
+### `repo` (object)
+- **`bareRepo`** (`string | null`): Path to bare repository (e.g. `'/path/to/bare/repo.git'`).
+- **`worktreesBase`** (`string | null`): Base directory where worktrees are created (e.g. `'/path/to/worktrees'`).
+- **`defaultBaseBranch`** (`string`): Base branch used when creating a new branch (e.g. `'develop'`, `'prod'`, `'main'`).
+- **`protectedBranches`** (`string[]`): Array of branches protected against deletion during `--nuke` (defaults to `['main', 'master', 'develop', 'prod', 'staging', 'production']`).
+
+### `workspace` (object)
+- **`labelPrefix`** (`string`): String prepended to Herdr workspace labels (e.g. `'[BE] '`).
+- **`defaultFocus`** (`string`): Default pane ID or title to focus upon creation (`'agy'`, `'vim'`, `'logs'`, `'server'`, `'shell'`).
+
+### `layout` (array)
+An array of pane definitions:
+- **`id`** (`string`): Unique ID within this layout.
+- **`title`** (`string`): Display label in Herdr.
+- **`cmd`** (`string | null`): Command executed upon startup.
+- **`position`** (`'root'`): Set on the root pane.
+- **`from`** (`string`): Parent pane ID to split from.
+- **`split`** (`'right' | 'down'`): Direction to split.
+- **`focus`** (`boolean`): Set `true` if this pane receives focus by default.
+
+### `scaffold` (object)
+- **`envSource`** (`string | null`): Path to environment file (.env) to copy into the new worktree.
+- **`symlink`** (`string | null`): Path to web server symlink to point to the active worktree (e.g. `'/var/www/my-app'`).
+- **`install`** (`string | boolean | null`): Command executed upon creation to install dependencies (e.g. `'npm install --legacy-peer-deps'`, `'pnpm install'`, `'composer install --no-interaction'`). Set to `false` or `null` to skip dependency installation.
+
+---
+
+## Example: `.worktreerc.json`
+
+```json
+{
+  "preset": "laravel",
+  "repo": {
+    "bareRepo": "/path/to/bare/repo.git",
+    "worktreesBase": "/path/to/worktrees",
+    "defaultBaseBranch": "main"
+  },
+  "workspace": {
+    "labelPrefix": "[API] ",
+    "defaultFocus": "agy"
+  },
+  "scaffold": {
+    "envSource": "/path/to/shared/.env",
+    "symlink": "/var/www/my-app",
+    "install": "composer install --no-interaction"
+  }
+}
+```
