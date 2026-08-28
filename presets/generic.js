@@ -21,7 +21,7 @@ module.exports = {
   layout: [
     { id: 'vim', title: 'vim', cmd: 'vim .', position: 'root' },
     { id: 'shell', title: 'shell', cmd: null, split: 'right', from: 'vim' },
-    { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'shell', focus: true },
+    { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'shell', focus: true, isAgent: true },
   ],
 
   hooks: {

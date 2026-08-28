@@ -16,6 +16,7 @@ export interface CliFlags {
   workspaceName: string | null;
   source: string | null;
   presetName: string | null;
+  agent: string | null;
   focusTarget: string | null;
   installSkill: boolean;
   skillScope: 'global' | 'local' | null;
@@ -41,6 +42,8 @@ export interface PaneDefinition {
   split?: SplitDirection;
   /** Whether to focus this pane by default */
   focus?: boolean;
+  /** Whether this pane is designated as the AI CLI agent pane */
+  isAgent?: boolean;
 }
 
 export interface RepoConfig {
@@ -57,7 +60,9 @@ export interface RepoConfig {
 export interface WorkspaceConfig {
   /** Prefix added to Herdr workspace labels (e.g. '[BE] ') */
   labelPrefix?: string;
-  /** Default pane to focus ('agy', 'vim', 'logs', 'server', 'shell') */
+  /** CLI AI agent to run in the workspace pane ('agy', 'claude', 'aider', 'copilot', 'none', etc.) */
+  agent?: string | { cmd: string; title?: string; [key: string]: any } | null;
+  /** Default pane to focus ('agent', 'agy', 'claude', 'vim', 'logs', 'server', 'shell') */
   defaultFocus?: string;
 }
 

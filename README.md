@@ -38,8 +38,12 @@ arise --branch feature/login
 # Explicitly specify a preset
 arise --branch feature/login --preset laravel
 
-# Specify base branch or custom workspace name
-arise --branch feature/login --source develop --focus agy
+# Choose your AI CLI agent (e.g. Claude Code, Aider, Antigravity, or Copilot)
+arise --branch feature/login --agent claude
+arise --branch feature/login -a aider
+
+# Specify base branch, custom workspace name, or focus pane
+arise --branch feature/login --source develop --focus claude
 ```
 
 ### 2. Nuke / Clean Up a Worktree
@@ -82,7 +86,8 @@ Place a `.ariserc.json` in your repository root, worktrees base directory, or `~
   },
   "workspace": {
     "labelPrefix": "[API] ",
-    "defaultFocus": "agy"
+    "agent": "claude",
+    "defaultFocus": "claude"
   },
   "scaffold": {
     "envSource": "/path/to/shared/.env",

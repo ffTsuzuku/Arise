@@ -58,4 +58,15 @@ test('CLI Argument Parsing', async (t) => {
     assert.equal(flagsAlias.installSkill, true);
     assert.equal(flagsAlias.skillScope, 'local');
   });
+
+  await t.test('parses agent flags correctly', () => {
+    const flagsLong = parseArgs(['--branch', 'feature/login', '--agent', 'claude']);
+    assert.equal(flagsLong.agent, 'claude');
+
+    const flagsShort = parseArgs(['-b', 'feature/auth', '-a', 'aider']);
+    assert.equal(flagsShort.agent, 'aider');
+
+    const flagsEqual = parseArgs(['-b', 'feature/test', '--agent=copilot']);
+    assert.equal(flagsEqual.agent, 'copilot');
+  });
 });

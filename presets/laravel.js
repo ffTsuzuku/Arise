@@ -23,7 +23,7 @@ module.exports = {
     { id: 'vim', title: 'vim', cmd: 'vim .', position: 'root' },
     { id: 'logs', title: 'logs', cmd: 'tail -f storage/logs/laravel.log', split: 'right', from: 'vim' },
     { id: 'shell', title: 'shell', cmd: null, split: 'down', from: 'vim' },
-    { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'logs', focus: true },
+    { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'logs', focus: true, isAgent: true },
   ],
 
   hooks: {

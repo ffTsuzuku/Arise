@@ -34,15 +34,29 @@
     },
     "workspace": {
       "type": "object",
-      "description": "Herdr workspace naming and focus configuration",
+      "description": "Herdr workspace naming, agent, and focus configuration",
       "properties": {
         "labelPrefix": {
           "type": "string",
           "description": "Prefix added to Herdr workspace labels (e.g. '[BE] ')"
         },
+        "agent": {
+          "type": ["string", "object", "null"],
+          "description": "CLI AI agent to run in the workspace pane ('agy', 'claude', 'aider', 'copilot', 'none', or custom command object)",
+          "properties": {
+            "cmd": {
+              "type": ["string", "null"],
+              "description": "Command to execute the agent"
+            },
+            "title": {
+              "type": "string",
+              "description": "Display title for the agent pane in Herdr"
+            }
+          }
+        },
         "defaultFocus": {
           "type": "string",
-          "description": "Default pane to focus upon creation ('agy', 'vim', 'logs', 'server', 'shell')"
+          "description": "Default pane to focus upon creation ('agent', 'agy', 'claude', 'vim', 'logs', 'server', 'shell')"
         }
       },
       "additionalProperties": false
@@ -83,6 +97,10 @@
           "focus": {
             "type": "boolean",
             "description": "Whether this pane should receive focus by default"
+          },
+          "isAgent": {
+            "type": "boolean",
+            "description": "Whether this pane is designated as the AI CLI agent pane"
           }
         },
         "additionalProperties": false

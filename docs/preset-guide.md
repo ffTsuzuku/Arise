@@ -38,7 +38,7 @@ module.exports = {
     { id: 'vim', title: 'vim', cmd: 'vim .', position: 'root' },
     { id: 'watch', title: 'cargo watch', cmd: 'cargo watch -x check', split: 'right', from: 'vim' },
     { id: 'shell', title: 'shell', cmd: null, split: 'down', from: 'vim' },
-    { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'watch', focus: true },
+    { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'watch', focus: true, isAgent: true },
   ],
 
   // 6. Scaffolding and lifecycle hooks

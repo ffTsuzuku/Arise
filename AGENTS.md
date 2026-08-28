@@ -64,10 +64,10 @@ arise/
 3a. Validate Branch & Resolve Target Paths                 4a. Resolve Target (auto-detect cwd)
 3b. Git Worktree Discovery & Creation                      4b. Safety Checks (protected branches)
 3c. Hook: `onSyncPrimary(ctx)`                             4c. Hook: `onPreNuke(ctx)` (e.g. symlinks)
-3d. Hook: `onScaffold(ctx)` (env, deps, perms)             4d. Close Matching Herdr Workspaces
-3e. Create Herdr Workspace                                 4e. Git Worktree Remove & Prune
-3f. Render Declarative Layout                              4f. Delete Local & Remote Branches
-3g. Focus Pane & Attach Session                            4g. Hook: `onPostNuke(ctx)`
+3d. Hook: `onScaffold(ctx)` (env, deps, perms)             4d. Git Worktree Remove & Prune
+3e. Create Herdr Workspace                                 4e. Delete Local & Remote Branches
+3f. Render Declarative Layout                              4f. Hook: `onPostNuke(ctx)`
+3g. Focus Pane & Attach Session                            4g. Close Matching Herdr Workspaces
 ```
 
 ---
@@ -101,7 +101,7 @@ arise/
        { id: 'vim', title: 'vim', cmd: 'vim .', position: 'root' },
        { id: 'server', title: 'server', cmd: 'python manage.py runserver', split: 'right', from: 'vim' },
        { id: 'shell', title: 'shell', cmd: null, split: 'down', from: 'vim' },
-       { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'server', focus: true },
+       { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'server', focus: true, isAgent: true },
      ],
      hooks: {
        async onScaffold(ctx) {

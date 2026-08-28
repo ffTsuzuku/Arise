@@ -13,5 +13,9 @@ test('Declarative Layout System', async (t) => {
 
     const splitPanes = DEFAULT_QUADRANT_LAYOUT.filter(p => p.from);
     assert.equal(splitPanes.length, 3);
+
+    const agentPane = DEFAULT_QUADRANT_LAYOUT.find(p => p.isAgent);
+    assert.ok(agentPane);
+    assert.equal(agentPane.id, 'agy');
   });
 });

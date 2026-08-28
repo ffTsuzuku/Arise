@@ -30,7 +30,8 @@ The preset to use (`'node'`, `'laravel'`, `'generic'`, etc.). When omitted, `ari
 
 ### `workspace` (object)
 - **`labelPrefix`** (`string`): String prepended to Herdr workspace labels (e.g. `'[BE] '`).
-- **`defaultFocus`** (`string`): Default pane ID or title to focus upon creation (`'agy'`, `'vim'`, `'logs'`, `'server'`, `'shell'`).
+- **`agent`** (`string | object`): AI CLI agent to run in the designated agent quadrant (`'agy'`, `'claude'`, `'aider'`, `'copilot'`, `'none'`, or `{ cmd: 'claude', title: 'claude' }`). Can also be set via the `ARISE_AGENT` environment variable or `--agent` / `-a` CLI flag.
+- **`defaultFocus`** (`string`): Default pane ID or title to focus upon creation (`'agent'`, `'agy'`, `'claude'`, `'vim'`, `'logs'`, `'server'`, `'shell'`).
 
 ### `layout` (array)
 An array of pane definitions:
@@ -41,6 +42,7 @@ An array of pane definitions:
 - **`from`** (`string`): Parent pane ID to split from.
 - **`split`** (`'right' | 'down'`): Direction to split.
 - **`focus`** (`boolean`): Set `true` if this pane receives focus by default.
+- **`isAgent`** (`boolean`): Set `true` to designate this pane as the AI CLI agent pane for automatic agent command overriding.
 
 ### `scaffold` (object)
 - **`envSource`** (`string | null`): Path to environment file (.env) to copy into the new worktree.

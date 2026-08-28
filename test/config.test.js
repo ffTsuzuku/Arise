@@ -54,4 +54,45 @@ test('Preset Registry & Resolution', async (t) => {
     };
     assert.equal(skipConfig.scaffold.install, false);
   });
+
+  await t.test('resolves CLI agent via flag and updates layout agent pane', () => {
+    const config = resolveConfiguration({ presetName: 'node', agent: 'claude' });
+    assert.equal(config.workspace.agent, 'claude');
+
+    const agentPane = config.layout.find((p) => p.isAgent || p.id === 'agy' || p.id === 'agent');
+    assert.ok(agentPane);
+    assert.equal(agentPane.cmd, 'claude');
+    assert.equal(agentPane.title, 'claude');
+    assert.equal(agentPane.isAgent, true);
+  });
+
+  await t.test('resolves CLI agent via ARISE_AGENT environment variable', () => {
+    const originalEnv = process.env.ARISE_AGENT;
+    try {
+      process.env.ARISE_AGENT = 'aider';
+      const config = resolveConfiguration({ presetName: 'laravel' });
+      assert.equal(config.workspace.agent, 'aider');
+
+      const agentPane = config.layout.find((p) => p.isAgent || p.id === 'agy' || p.id === 'agent');
+      assert.ok(agentPane);
+      assert.equal(agentPane.cmd, 'aider');
+      assert.equal(agentPane.title, 'aider');
+    } finally {
+      if (originalEnv === undefined) {
+        delete process.env.ARISE_AGENT;
+      } else {
+        process.env.ARISE_AGENT = originalEnv;
+      }
+    }
+  });
+
+  await t.test('handles agent disabling when set to "none"', () => {
+    const config = resolveConfiguration({ presetName: 'generic', agent: 'none' });
+    assert.equal(config.workspace.agent, 'none');
+
+    const agentPane = config.layout.find((p) => p.isAgent || p.id === 'agy' || p.id === 'agent');
+    assert.ok(agentPane);
+    assert.equal(agentPane.cmd, null);
+    assert.equal(agentPane.title, 'shell');
+  });
 });

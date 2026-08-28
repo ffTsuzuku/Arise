@@ -27,7 +27,7 @@ module.exports = {
     { id: 'vim', title: 'vim', cmd: 'vim .', position: 'root' },
     { id: 'server', title: 'server', cmd: 'python manage.py runserver', split: 'right', from: 'vim' },
     { id: 'shell', title: 'shell', cmd: null, split: 'down', from: 'vim' },
-    { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'server', focus: true },
+    { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'server', focus: true, isAgent: true },
   ],
 
   hooks: {

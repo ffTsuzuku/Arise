@@ -4,10 +4,10 @@
   "description": "Arise - Unified workplace-agnostic Git worktree and Herdr workspace orchestrator with pluggable project presets",
   "main": "index.js",
   "bin": {
-    "arise": "./bin/cli.js",
-    "herdr-worktree": "./bin/cli.js",
-    "herder-worktree": "./bin/cli.js",
-    "hwk": "./bin/cli.js"
+    "arise": "bin/cli.js",
+    "herdr-worktree": "bin/cli.js",
+    "herder-worktree": "bin/cli.js",
+    "hwk": "bin/cli.js"
   },
   "files": [
     "bin",
@@ -38,4 +38,3 @@
   "author": "",
   "license": "ISC"
 }
-
