@@ -1,6 +1,9 @@
 {
-  "name": "arise",
-  "version": "1.0.0",
+  "name": "@tsuzuku/arise",
+  "version": "1.0.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Arise - Unified workplace-agnostic Git worktree and Herdr workspace orchestrator with pluggable project presets",
   "main": "index.js",
   "bin": {
