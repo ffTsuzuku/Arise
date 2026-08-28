@@ -1,6 +1,6 @@
-# Cursor Rules for Herdr Worktree
+# Cursor Rules for Arise
 
-You are working on `herdr-worktree`, a modular Git worktree and Herdr workspace orchestrator.
+You are working on `arise`, a modular Git worktree and Herdr workspace orchestrator.
 
 ## Core Rules & Invariants
 1. Read `AGENTS.md` and `types.d.ts` before modifying code.
@@ -12,5 +12,5 @@ You are working on `herdr-worktree`, a modular Git worktree and Herdr workspace 
 Whenever you make any change to the codebase:
 1. Update `types.d.ts` if any interfaces, flags, or configuration shapes changed.
 2. Update relevant files in `docs/` (`docs/architecture.md`, `docs/preset-guide.md`, `docs/config-reference.md`) and `README.md`.
-3. Update `worktree.schema.json` if `.worktreerc` options were added/modified.
+3. Update `arise.schema.json` and `worktree.schema.json` if config options were added/modified.
 4. Run `npm test` and verify that all unit tests (including `test/docs-sync.test.js`) pass 100%.

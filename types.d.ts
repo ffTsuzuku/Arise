@@ -1,5 +1,5 @@
 /**
- * Herdr Worktree - Type Definitions
+ * Arise - Type Definitions
  * 
  * Provides strict structural contracts for presets, configuration,
  * declarative layouts, execution context, and lifecycle hooks.

@@ -16,7 +16,7 @@ test('Agent Skill Installation', async (t) => {
     const installed = installSkill({ scope: 'local', cwd: tempDir });
     assert.ok(installed.length > 0);
 
-    const localSkillDir = path.join(tempDir, '.agents', 'skills', 'herdr-worktree');
+    const localSkillDir = path.join(tempDir, '.agents', 'skills', 'arise');
     assert.ok(fs.existsSync(localSkillDir), 'Local skill dir must exist');
     assert.ok(fs.lstatSync(localSkillDir).isSymbolicLink(), 'Local skill dir must be a symbolic link');
 
@@ -24,8 +24,8 @@ test('Agent Skill Installation', async (t) => {
     assert.ok(fs.existsSync(localSkillPath), 'Local SKILL.md must be readable through symlink');
 
     const content = fs.readFileSync(localSkillPath, 'utf8');
-    assert.ok(content.includes('name: herdr-worktree'));
-    assert.ok(content.includes('Herdr Worktree Operator & Assistant Guide'));
+    assert.ok(content.includes('name: arise'));
+    assert.ok(content.includes('Arise Operator & Assistant Guide'));
   });
 
   await t.test('installs skill globally to custom homedir and sets up symlinks', () => {
@@ -38,15 +38,15 @@ test('Agent Skill Installation', async (t) => {
     const installed = installSkill({ scope: 'global', homedir: mockHome });
     assert.ok(installed.length >= 2, 'Should install to .agents and link to .gemini and .claude');
 
-    const globalSkillDir = path.join(mockHome, '.agents', 'skills', 'herdr-worktree');
+    const globalSkillDir = path.join(mockHome, '.agents', 'skills', 'arise');
     assert.ok(fs.existsSync(globalSkillDir), 'Global skill dir must exist');
     assert.ok(fs.lstatSync(globalSkillDir).isSymbolicLink(), 'Global skill dir must be a symbolic link');
 
-    const geminiLink = path.join(mockHome, '.gemini', 'skills', 'herdr-worktree');
+    const geminiLink = path.join(mockHome, '.gemini', 'skills', 'arise');
     assert.ok(fs.existsSync(geminiLink), 'Gemini symlink must exist');
     assert.ok(fs.lstatSync(geminiLink).isSymbolicLink(), 'Gemini link must be a symbolic link');
 
-    const claudeLink = path.join(mockHome, '.claude', 'skills', 'herdr-worktree');
+    const claudeLink = path.join(mockHome, '.claude', 'skills', 'arise');
     assert.ok(fs.existsSync(claudeLink), 'Claude symlink must exist');
     assert.ok(fs.lstatSync(claudeLink).isSymbolicLink(), 'Claude link must be a symbolic link');
   });

@@ -1,4 +1,4 @@
-# GitHub Copilot Instructions for Herdr Worktree
+# GitHub Copilot Instructions for Arise
 
 ## Core Project Guidelines
 - Read `AGENTS.md` and `types.d.ts` for architectural conventions and type interfaces.
@@ -9,5 +9,5 @@
 When adding or modifying features:
 1. Always update `types.d.ts` to reflect flag, preset, or config schema changes.
 2. Always update `docs/` and `README.md`.
-3. Keep `worktree.schema.json` in sync with any `.worktreerc.json` changes.
+3. Keep `arise.schema.json` and `worktree.schema.json` in sync with any configuration changes.
 4. Ensure `npm test` passes cleanly.

@@ -1,6 +1,6 @@
 # System Architecture & Subsystem Design
 
-`herdr-worktree` is structured as a decoupled, layered command-line engine that coordinates Git worktrees and Herdr terminal sessions across disparate technology stacks.
+`arise` is structured as a decoupled, layered command-line engine that coordinates Git worktrees and Herdr terminal sessions across disparate technology stacks.
 
 ---
 
@@ -42,7 +42,7 @@
 - Handles flags, aliases, short forms, and positional fallback.
 
 ### 2. Configuration & Preset Loader (`lib/config.js`)
-- Recursively searches parent directories and home configs for `.worktreerc.json`, `.worktreerc.js`, or `worktree.config.js`.
+- Recursively searches parent directories and home configs for `.ariserc.json`, `arise.config.js`, `.worktreerc.json`, `.worktreerc.js`, or `worktree.config.js`.
 - Discovers active preset through `--preset` flag, config file, or directory auto-detection heuristics.
 - Deep-merges user config over preset defaults.
 

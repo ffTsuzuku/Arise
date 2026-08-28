@@ -1,7 +1,7 @@
-# AGENTS.md - AI Developer Guide for Herdr Worktree
+# AGENTS.md - AI Developer Guide for Arise
 
 > **Briefing for AI Assistants & LLMs:**
-> This repository contains **`herdr-worktree`**, a modular, workplace-agnostic Git worktree and Herdr workspace orchestrator.
+> This repository contains **`arise`**, a modular, workplace-agnostic Git worktree and Herdr workspace orchestrator.
 > Read this document first when analyzing, extending, modifying, or debugging this codebase.
 
 ---
@@ -11,24 +11,25 @@
 - **Core Goal**: Provide a unified CLI to automate the entire lifecycle of Git worktrees integrated with Herdr terminal workspaces (creation, branch checkout, environment file copying, dependency installation, permission setting, 4-pane quadrant layout orchestration, and safe teardown/nuke).
 - **Agnostic Core**: The core engine (`lib/`) MUST remain 100% agnostic of any specific workplace, machine, or language.
 - **Pluggable Presets**: Language- and framework-specific behavior (Node.js, Laravel/PHP, etc.) is isolated in `presets/`.
-- **User Configurations**: Machine- or project-specific paths (such as bare repos, shared directories, and symlinks) are configured externally via `.worktreerc.json` / `worktree.config.js`.
+- **User Configurations**: Machine- or project-specific paths (such as bare repos, shared directories, and symlinks) are configured externally via `.ariserc.json` / `.worktreerc.json` / `arise.config.js`.
 
 ---
 
 ## 2. Directory Map
 
 ```
-herder-worktree/
+arise/
 ├── AGENTS.md                  # This master AI instruction file
 ├── types.d.ts                 # TypeScript type definitions for all core abstractions
-├── worktree.schema.json       # JSON Schema for .worktreerc.json
+├── arise.schema.json          # JSON Schema for .ariserc.json
+├── worktree.schema.json       # JSON Schema for .worktreerc.json (backwards compatibility)
 ├── package.json               # Package metadata & bin script mapping
 ├── index.js                   # Main runner entrypoint
 ├── bin/
 │   └── cli.js                 # Executable CLI entrypoint (#!/usr/bin/env node)
 ├── lib/
 │   ├── cli.js                 # CLI argument parsing, flags, and help text
-│   ├── config.js              # Config file discovery (.worktreerc) and preset merging
+│   ├── config.js              # Config file discovery (.ariserc / .worktreerc) and preset merging
 │   ├── context.js             # Execution context helper passed into lifecycle hooks
 │   ├── git.js                 # Git operations (worktrees, branches, remote checks, prune)
 │   ├── herdr.js               # Herdr CLI commands (workspace create/close, pane split/exec)
@@ -45,7 +46,7 @@ herder-worktree/
 ├── docs/                      # In-depth architectural and developer documentation
 │   ├── architecture.md        # Lifecycle flowcharts & subsystem details
 │   ├── preset-guide.md        # Step-by-step tutorial on creating new presets
-│   └── config-reference.md    # Exhaustive .worktreerc reference
+│   └── config-reference.md    # Exhaustive config reference
 ├── examples/                  # Reference implementations for configs and presets
 └── test/                      # Node.js built-in test suite (node --test)
 ```
@@ -55,7 +56,7 @@ herder-worktree/
 ## 3. The 7-Step Lifecycle Pipeline
 
 ```
-[1. Parse CLI Args] ──► [2. Load .worktreerc & Merge Preset]
+[1. Parse CLI Args] ──► [2. Load .ariserc / .worktreerc & Merge Preset]
                                     │
     ┌───────────────────────────────┴──────────────────────────────┐
     ▼                                                              ▼
@@ -138,7 +139,7 @@ Whenever modifying or extending this codebase, **YOU MUST KEEP ALL DOCUMENTATION
 - **Adding / Modifying Config Options**:
   - Update `lib/config.js`.
   - Update `types.d.ts` (`WorktreeConfig`, `RepoConfig`, `WorkspaceConfig`, `ScaffoldConfig`).
-  - Update `worktree.schema.json`.
+  - Update `arise.schema.json` and `worktree.schema.json`.
   - Update `docs/config-reference.md`.
 
 ---
@@ -149,7 +150,7 @@ Before declaring any task or modification complete, you MUST verify:
 - [ ] Code is implemented cleanly in `lib/` or `presets/` without breaking invariants.
 - [ ] `types.d.ts` is fully updated with any new/modified types.
 - [ ] Relevant documentation in `docs/` and `README.md` is updated.
-- [ ] Schema `worktree.schema.json` is updated if `.worktreerc` options changed.
+- [ ] Schema `arise.schema.json` and `worktree.schema.json` are updated if config options changed.
 - [ ] Automated tests in `test/` (including `docs-sync.test.js`) are executed with `npm test` and pass 100%.
 
 ---

@@ -1,6 +1,6 @@
 # Preset Authoring Guide
 
-This guide describes how to build, test, and register custom language and framework presets for `herdr-worktree`.
+This guide describes how to build, test, and register custom language and framework presets for `arise`.
 
 ---
 

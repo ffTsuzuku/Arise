@@ -1,9 +1,10 @@
 {
-  "name": "herdr-worktree",
+  "name": "arise",
   "version": "1.0.0",
-  "description": "Unified workplace-agnostic Git worktree and Herdr workspace orchestrator with pluggable project presets",
+  "description": "Arise - Unified workplace-agnostic Git worktree and Herdr workspace orchestrator with pluggable project presets",
   "main": "index.js",
   "bin": {
+    "arise": "./bin/cli.js",
     "herdr-worktree": "./bin/cli.js",
     "herder-worktree": "./bin/cli.js",
     "hwk": "./bin/cli.js"
@@ -15,6 +16,7 @@
     "skills",
     "index.js",
     "types.d.ts",
+    "arise.schema.json",
     "worktree.schema.json",
     "README.md"
   ],

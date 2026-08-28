@@ -40,6 +40,7 @@ test('Documentation & Type Synchronization Verification', async (t) => {
       'AGENTS.md',
       'README.md',
       'types.d.ts',
+      'arise.schema.json',
       'worktree.schema.json',
       '.cursorrules',
       'CLAUDE.md',
@@ -57,23 +58,25 @@ test('Documentation & Type Synchronization Verification', async (t) => {
     }
   });
 
-  await t.test('worktree.schema.json is valid JSON with required top-level keys', () => {
-    const schemaPath = path.join(BASE_DIR, 'worktree.schema.json');
-    const content = fs.readFileSync(schemaPath, 'utf8');
-    const schema = JSON.parse(content);
+  await t.test('arise.schema.json and worktree.schema.json are valid JSON with required top-level keys', () => {
+    for (const schemaFile of ['arise.schema.json', 'worktree.schema.json']) {
+      const schemaPath = path.join(BASE_DIR, schemaFile);
+      const content = fs.readFileSync(schemaPath, 'utf8');
+      const schema = JSON.parse(content);
 
-    assert.ok(schema.properties.preset, 'schema must define preset property');
-    assert.ok(schema.properties.repo, 'schema must define repo property');
-    assert.ok(schema.properties.workspace, 'schema must define workspace property');
-    assert.ok(schema.properties.layout, 'schema must define layout property');
-    assert.ok(schema.properties.scaffold, 'schema must define scaffold property');
+      assert.ok(schema.properties.preset, `${schemaFile} must define preset property`);
+      assert.ok(schema.properties.repo, `${schemaFile} must define repo property`);
+      assert.ok(schema.properties.workspace, `${schemaFile} must define workspace property`);
+      assert.ok(schema.properties.layout, `${schemaFile} must define layout property`);
+      assert.ok(schema.properties.scaffold, `${schemaFile} must define scaffold property`);
+    }
   });
 
   await t.test('package.json conforms to npm distribution requirements', () => {
     const pkgPath = path.join(BASE_DIR, 'package.json');
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
 
-    assert.ok(pkg.bin && pkg.bin['herdr-worktree'], 'must define herdr-worktree in bin');
+    assert.ok(pkg.bin && pkg.bin['arise'], 'must define arise in bin');
     assert.ok(Array.isArray(pkg.files) && pkg.files.length > 0, 'must specify files whitelist');
     assert.ok(pkg.engines && pkg.engines.node, 'must specify engines.node');
 

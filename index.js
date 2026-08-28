@@ -12,7 +12,7 @@ async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
   }
 
   if (flags.showVersion) {
-    console.log('herdr-worktree v1.0.0');
+    console.log('arise v1.0.0');
     process.exit(0);
   }
 

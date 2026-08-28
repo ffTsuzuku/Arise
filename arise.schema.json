@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AriseConfig",
+  "description": "Configuration schema for Arise (.ariserc.json / .worktreerc.json)",
+  "type": "object",
+  "properties": {
+    "preset": {
+      "type": "string",
+      "description": "Preset name to use ('node', 'laravel', 'generic' or custom registered preset)"
+    },
+    "repo": {
+      "type": "object",
+      "description": "Repository topology and branch configuration",
+      "properties": {
+        "bareRepo": {
+          "type": ["string", "null"],
+          "description": "Path to bare git repository (e.g. '/path/to/bare/repo.git')"
+        },
+        "worktreesBase": {
+          "type": ["string", "null"],
+          "description": "Base directory where worktrees should be placed (e.g. '/path/to/worktrees')"
+        },
+        "defaultBaseBranch": {
+          "type": "string",
+          "description": "Default base branch to branch off (e.g. 'develop', 'prod', 'main')"
+        },
+        "protectedBranches": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Array of branch names protected against deletion during --nuke"
+        }
+      },
+      "additionalProperties": false
+    },
+    "workspace": {
+      "type": "object",
+      "description": "Herdr workspace naming and focus configuration",
+      "properties": {
+        "labelPrefix": {
+          "type": "string",
+          "description": "Prefix added to Herdr workspace labels (e.g. '[BE] ')"
+        },
+        "defaultFocus": {
+          "type": "string",
+          "description": "Default pane to focus upon creation ('agy', 'vim', 'logs', 'server', 'shell')"
+        }
+      },
+      "additionalProperties": false
+    },
+    "layout": {
+      "type": "array",
+      "description": "Declarative 4-pane quadrant layout definitions",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for this pane within the layout"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title displayed on the Herdr pane"
+          },
+          "cmd": {
+            "type": ["string", "null"],
+            "description": "Command to run when pane is opened (e.g. 'vim .', 'npm run dev', 'tail -f ...')"
+          },
+          "position": {
+            "type": "string",
+            "enum": ["root"],
+            "description": "Set to 'root' for the initial root pane"
+          },
+          "from": {
+            "type": "string",
+            "description": "ID of parent pane to split from"
+          },
+          "split": {
+            "type": "string",
+            "enum": ["right", "down"],
+            "description": "Split direction ('right' or 'down')"
+          },
+          "focus": {
+            "type": "boolean",
+            "description": "Whether this pane should receive focus by default"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "scaffold": {
+      "type": "object",
+      "description": "Scaffolding options (environment files, symlinks, dependency installation, etc.)",
+      "properties": {
+        "envSource": {
+          "type": ["string", "null"],
+          "description": "Path to .env source file to copy into new worktree"
+        },
+        "symlink": {
+          "type": ["string", "null"],
+          "description": "Path to web server symlink to update to active worktree"
+        },
+        "install": {
+          "type": ["string", "boolean", "null"],
+          "description": "Command to run to install dependencies upon creation (e.g. 'npm install --legacy-peer-deps', 'pnpm install', 'composer install --no-interaction'), or false/null to skip installation."
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

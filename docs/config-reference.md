@@ -1,23 +1,26 @@
-# Configuration File Reference (`.worktreerc.json` / `worktree.config.js`)
+# Configuration File Reference (`.ariserc.json` / `arise.config.js` / `.worktreerc.json`)
 
-`herdr-worktree` allows project-level and user-level configuration files to override preset defaults, topology paths, and terminal layouts.
+`arise` allows project-level and user-level configuration files to override preset defaults, topology paths, and terminal layouts.
 
 ---
 
 ## File Resolution Order
 
-1. `./.worktreerc.js` or `./worktree.config.js` (Current Directory)
-2. `./.worktreerc.json` or `./.worktreerc` (Current Directory)
-3. `<repoRoot>/.worktreerc.json` (Repository Root)
-4. `~/.config/herdr-worktree/config.js` (User Global Config)
-5. `~/.worktreerc.json` (User Home Directory)
+1. `./.ariserc.js` or `./arise.config.js` (Current Directory)
+2. `./.ariserc.json` or `./.ariserc` (Current Directory)
+3. `./.worktreerc.js` or `./worktree.config.js` (Current Directory fallback)
+4. `./.worktreerc.json` or `./.worktreerc` (Current Directory fallback)
+5. `<repoRoot>/.ariserc.json` / `<repoRoot>/.worktreerc.json` (Repository Root)
+6. `~/.config/arise/config.js` (User Global Config)
+7. `~/.config/herdr-worktree/config.js` (User Global Config fallback)
+8. `~/.ariserc.json` / `~/.worktreerc.json` (User Home Directory)
 
 ---
 
 ## Configuration Schema & Options
 
 ### `preset` (string)
-The preset to use (`'node'`, `'laravel'`, `'generic'`, etc.). When omitted, `herdr-worktree` auto-detects the preset from file markers.
+The preset to use (`'node'`, `'laravel'`, `'generic'`, etc.). When omitted, `arise` auto-detects the preset from file markers.
 
 ### `repo` (object)
 - **`bareRepo`** (`string | null`): Path to bare repository (e.g. `'/path/to/bare/repo.git'`).
