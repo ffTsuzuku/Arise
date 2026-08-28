@@ -69,4 +69,12 @@ test('CLI Argument Parsing', async (t) => {
     const flagsEqual = parseArgs(['-b', 'feature/test', '--agent=copilot']);
     assert.equal(flagsEqual.agent, 'copilot');
   });
+
+  await t.test('parses yes flags correctly', () => {
+    const flagsLong = parseArgs(['--branch', 'feature/login', '--yes']);
+    assert.equal(flagsLong.yes, true);
+
+    const flagsShort = parseArgs(['-b', 'feature/auth', '-y']);
+    assert.equal(flagsShort.yes, true);
+  });
 });

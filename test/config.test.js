@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const os = require('os');
 const { getPreset, detectPreset } = require('../presets');
 const { resolveConfiguration } = require('../lib/config');
 
@@ -23,7 +24,7 @@ test('Preset Registry & Resolution', async (t) => {
   });
 
   await t.test('resolves configuration with preset overrides', () => {
-    const config = resolveConfiguration({ presetName: 'node' });
+    const config = resolveConfiguration({ presetName: 'node' }, os.tmpdir());
     assert.equal(config.preset.name, 'node');
     assert.equal(config.repo.defaultBaseBranch, 'develop');
     assert.equal(Array.isArray(config.layout), true);

@@ -11,6 +11,7 @@ export interface CliFlags {
   dirOnly: boolean;
   keepRemote: boolean;
   force: boolean;
+  yes: boolean;
   branch: string | null;
   dirname: string | null;
   workspaceName: string | null;
