@@ -1,0 +1,53 @@
+{
+  "$schema": "./arise.schema.json",
+  "preset": "node",
+  "repo": {
+    "defaultBaseBranch": "main",
+    "protectedBranches": [
+      "main",
+      "master"
+    ]
+  },
+  "workspace": {
+    "labelPrefix": "[arise] ",
+    "agent": {
+      "cmd": "agy --dangerously-skip-permissions",
+      "title": "agy"
+    },
+    "defaultFocus": "agy"
+  },
+  "layout": [
+    {
+      "id": "vim",
+      "title": "vim",
+      "cmd": "vim .",
+      "position": "root"
+    },
+    {
+      "id": "test",
+      "title": "test watcher",
+      "cmd": "node --watch --test test/*.test.js",
+      "split": "right",
+      "from": "vim"
+    },
+    {
+      "id": "shell",
+      "title": "shell",
+      "cmd": null,
+      "split": "down",
+      "from": "vim"
+    },
+    {
+      "id": "agy",
+      "title": "agy",
+      "cmd": "agy --dangerously-skip-permissions",
+      "split": "down",
+      "from": "test",
+      "focus": true,
+      "isAgent": true
+    }
+  ],
+  "scaffold": {
+    "install": "npm install"
+  }
+}
