@@ -1,3 +1,4 @@
+const pkg = require('./package.json');
 const { parseArgs, showUsage } = require('./lib/cli');
 const { resolveConfiguration } = require('./lib/config');
 const { executeCreate } = require('./lib/lifecycle/create');
@@ -12,7 +13,7 @@ async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
   }
 
   if (flags.showVersion) {
-    console.log('arise v1.0.0');
+    console.log(`arise v${pkg.version}`);
     process.exit(0);
   }
 

@@ -96,4 +96,53 @@ test('Preset Registry & Resolution', async (t) => {
     assert.equal(agentPane.cmd, null);
     assert.equal(agentPane.title, 'shell');
   });
+
+  await t.test('discovers configuration file across worktrees in bare repo topology', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const { execSync } = require('child_process');
+
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arise-bare-test-'));
+    const initRepo = path.join(tmpDir, 'init-repo');
+    const bareDir = path.join(tmpDir, '.bare');
+    const mainDir = path.join(tmpDir, 'main');
+
+    try {
+      // 1. Create initial repo with a commit
+      fs.mkdirSync(initRepo, { recursive: true });
+      execSync('git init -b main', { cwd: initRepo, stdio: 'ignore' });
+      execSync('git config user.email "test@example.com"', { cwd: initRepo, stdio: 'ignore' });
+      execSync('git config user.name "Test User"', { cwd: initRepo, stdio: 'ignore' });
+      fs.writeFileSync(path.join(initRepo, 'README.md'), '# Test\n');
+      execSync('git add README.md && git commit -m "Initial commit"', { cwd: initRepo, stdio: 'ignore' });
+
+      // 2. Clone as bare repo
+      execSync(`git clone --bare "${initRepo}" "${bareDir}"`, { stdio: 'ignore' });
+
+      // 3. Add main worktree
+      execSync(`git -C "${bareDir}" worktree add "${mainDir}" main`, { stdio: 'ignore' });
+
+      // 4. Add a custom .ariserc.json in the main worktree
+      const customConfig = {
+        preset: 'node',
+        layout: [
+          { id: 'vim', title: 'vim', cmd: 'vim .', position: 'root' },
+          { id: 'test', title: 'test watcher', cmd: 'npm test -- --watch', split: 'right', from: 'vim' },
+        ],
+      };
+      fs.writeFileSync(path.join(mainDir, '.ariserc.json'), JSON.stringify(customConfig, null, 2));
+
+      // Resolve configuration from bare repo root (tmpDir)
+      const resolved = resolveConfiguration({}, tmpDir);
+      assert.ok(resolved.configFile);
+      assert.equal(fs.realpathSync(resolved.configFile), fs.realpathSync(path.join(mainDir, '.ariserc.json')));
+      assert.equal(resolved.layout.length, 2);
+      assert.equal(resolved.layout[1].id, 'test');
+      assert.equal(resolved.layout[1].title, 'test watcher');
+    } finally {
+      try {
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+      } catch (e) {}
+    }
+  });
 });
