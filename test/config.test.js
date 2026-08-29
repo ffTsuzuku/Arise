@@ -1,10 +1,17 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
 const os = require('os');
 const { getPreset, detectPreset } = require('../presets');
 const { resolveConfiguration } = require('../lib/config');
 
 test('Preset Registry & Resolution', async (t) => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arise-config-test-'));
+  t.after(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
   await t.test('retrieves node preset by alias', () => {
     assert.equal(getPreset('node').name, 'node');
     assert.equal(getPreset('js').name, 'node');
@@ -24,7 +31,7 @@ test('Preset Registry & Resolution', async (t) => {
   });
 
   await t.test('resolves configuration with preset overrides', () => {
-    const config = resolveConfiguration({ presetName: 'node' }, os.tmpdir());
+    const config = resolveConfiguration({ presetName: 'node' }, tmpDir);
     assert.equal(config.preset.name, 'node');
     assert.equal(config.repo.defaultBaseBranch, 'develop');
     assert.equal(Array.isArray(config.layout), true);
@@ -32,7 +39,7 @@ test('Preset Registry & Resolution', async (t) => {
   });
 
   await t.test('merges scaffold configuration and supports custom install commands', () => {
-    const config = resolveConfiguration({ presetName: 'node' });
+    const config = resolveConfiguration({ presetName: 'node' }, tmpDir);
     assert.ok(typeof config.scaffold === 'object');
 
     // Simulate resolved config with custom install command
@@ -57,7 +64,7 @@ test('Preset Registry & Resolution', async (t) => {
   });
 
   await t.test('resolves CLI agent via flag and updates layout agent pane', () => {
-    const config = resolveConfiguration({ presetName: 'node', agent: 'claude' });
+    const config = resolveConfiguration({ presetName: 'node', agent: 'claude' }, tmpDir);
     assert.equal(config.workspace.agent, 'claude');
 
     const agentPane = config.layout.find((p) => p.isAgent || p.id === 'agy' || p.id === 'agent');
@@ -71,7 +78,7 @@ test('Preset Registry & Resolution', async (t) => {
     const originalEnv = process.env.ARISE_AGENT;
     try {
       process.env.ARISE_AGENT = 'aider';
-      const config = resolveConfiguration({ presetName: 'laravel' });
+      const config = resolveConfiguration({ presetName: 'laravel' }, tmpDir);
       assert.equal(config.workspace.agent, 'aider');
 
       const agentPane = config.layout.find((p) => p.isAgent || p.id === 'agy' || p.id === 'agent');
@@ -88,7 +95,7 @@ test('Preset Registry & Resolution', async (t) => {
   });
 
   await t.test('handles agent disabling when set to "none"', () => {
-    const config = resolveConfiguration({ presetName: 'generic', agent: 'none' });
+    const config = resolveConfiguration({ presetName: 'generic', agent: 'none' }, tmpDir);
     assert.equal(config.workspace.agent, 'none');
 
     const agentPane = config.layout.find((p) => p.isAgent || p.id === 'agy' || p.id === 'agent');

@@ -65,4 +65,31 @@ test("Git operations and worktree creation", async (t) => {
     git.deleteLocalBranch("feature-1", { repoDir });
     assert.strictEqual(git.branchExistsLocally("feature-1", { repoDir }), false);
   });
+
+  await t.test("supports bare repository root and worktree detection", () => {
+    const bareDir = path.join(tmpDir, "bare.git");
+    execSync(`git clone --bare "${repoDir}" "${bareDir}"`, { stdio: "ignore" });
+
+    assert.strictEqual(git.isBareRepo(bareDir), true);
+    assert.strictEqual(git.isBareRepo(repoDir), false);
+
+    const wtBarePath = path.join(tmpDir, "bare-wt-feature");
+    git.createWorktree({
+      worktreePath: wtBarePath,
+      branch: "bare-feature-1",
+      source: "main",
+      bareRepo: bareDir,
+    });
+
+    assert.strictEqual(fs.existsSync(wtBarePath), true);
+    assert.strictEqual(git.getRepoRootDir(wtBarePath), bareDir);
+    assert.strictEqual(git.getRepoRootDir(bareDir), bareDir);
+
+    const worktrees = git.getWorktrees({ bareRepo: bareDir });
+    assert.ok(worktrees.some(wt => path.resolve(wt.path) === path.resolve(wtBarePath)));
+
+    git.removeWorktree(wtBarePath, { force: true, bareRepo: bareDir });
+    git.pruneWorktrees({ bareRepo: bareDir });
+    assert.strictEqual(fs.existsSync(wtBarePath), false);
+  });
 });
