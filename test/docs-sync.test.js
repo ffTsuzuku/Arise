@@ -41,7 +41,6 @@ test('Documentation & Type Synchronization Verification', async (t) => {
       'README.md',
       'types.d.ts',
       'arise.schema.json',
-      'worktree.schema.json',
       '.cursorrules',
       'CLAUDE.md',
       '.github/copilot-instructions.md',
@@ -58,18 +57,16 @@ test('Documentation & Type Synchronization Verification', async (t) => {
     }
   });
 
-  await t.test('arise.schema.json and worktree.schema.json are valid JSON with required top-level keys', () => {
-    for (const schemaFile of ['arise.schema.json', 'worktree.schema.json']) {
-      const schemaPath = path.join(BASE_DIR, schemaFile);
-      const content = fs.readFileSync(schemaPath, 'utf8');
-      const schema = JSON.parse(content);
+  await t.test('arise.schema.json is valid JSON with required top-level keys', () => {
+    const schemaPath = path.join(BASE_DIR, 'arise.schema.json');
+    const content = fs.readFileSync(schemaPath, 'utf8');
+    const schema = JSON.parse(content);
 
-      assert.ok(schema.properties.preset, `${schemaFile} must define preset property`);
-      assert.ok(schema.properties.repo, `${schemaFile} must define repo property`);
-      assert.ok(schema.properties.workspace, `${schemaFile} must define workspace property`);
-      assert.ok(schema.properties.layout, `${schemaFile} must define layout property`);
-      assert.ok(schema.properties.scaffold, `${schemaFile} must define scaffold property`);
-    }
+    assert.ok(schema.properties.preset, 'arise.schema.json must define preset property');
+    assert.ok(schema.properties.repo, 'arise.schema.json must define repo property');
+    assert.ok(schema.properties.workspace, 'arise.schema.json must define workspace property');
+    assert.ok(schema.properties.layout, 'arise.schema.json must define layout property');
+    assert.ok(schema.properties.scaffold, 'arise.schema.json must define scaffold property');
   });
 
   await t.test('package.json conforms to npm distribution requirements', () => {

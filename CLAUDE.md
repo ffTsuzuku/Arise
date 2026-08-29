@@ -16,5 +16,5 @@ Refer to `AGENTS.md` and `types.d.ts` for full architectural details and type co
 Every code change MUST keep documentation, type definitions, and tests in sync:
 1. Update `types.d.ts` for any interface or flag modifications.
 2. Update `docs/` and `README.md` to reflect new/updated features.
-3. Update `arise.schema.json` and `worktree.schema.json` if configuration options change.
+3. Update `arise.schema.json` if configuration options change.
 4. Run `npm test` before concluding.

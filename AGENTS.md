@@ -22,7 +22,6 @@ arise/
 ├── AGENTS.md                  # This master AI instruction file
 ├── types.d.ts                 # TypeScript type definitions for all core abstractions
 ├── arise.schema.json          # JSON Schema for .ariserc.json
-├── worktree.schema.json       # JSON Schema for .worktreerc.json (backwards compatibility)
 ├── package.json               # Package metadata & bin script mapping
 ├── index.js                   # Main runner entrypoint
 ├── bin/
@@ -139,7 +138,7 @@ Whenever modifying or extending this codebase, **YOU MUST KEEP ALL DOCUMENTATION
 - **Adding / Modifying Config Options**:
   - Update `lib/config.js`.
   - Update `types.d.ts` (`WorktreeConfig`, `RepoConfig`, `WorkspaceConfig`, `ScaffoldConfig`).
-  - Update `arise.schema.json` and `worktree.schema.json`.
+  - Update `arise.schema.json`.
   - Update `docs/config-reference.md`.
 
 ---
@@ -150,7 +149,7 @@ Before declaring any task or modification complete, you MUST verify:
 - [ ] Code is implemented cleanly in `lib/` or `presets/` without breaking invariants.
 - [ ] `types.d.ts` is fully updated with any new/modified types.
 - [ ] Relevant documentation in `docs/` and `README.md` is updated.
-- [ ] Schema `arise.schema.json` and `worktree.schema.json` are updated if config options changed.
+- [ ] Schema `arise.schema.json` is updated if config options changed.
 - [ ] Automated tests in `test/` (including `docs-sync.test.js`) are executed with `npm test` and pass 100%.
 
 ---

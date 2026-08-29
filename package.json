@@ -20,7 +20,6 @@
     "index.js",
     "types.d.ts",
     "arise.schema.json",
-    "worktree.schema.json",
     "README.md"
   ],
   "engines": {
