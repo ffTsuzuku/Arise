@@ -82,11 +82,11 @@ test("Git operations and worktree creation", async (t) => {
     });
 
     assert.strictEqual(fs.existsSync(wtBarePath), true);
-    assert.strictEqual(git.getRepoRootDir(wtBarePath), bareDir);
-    assert.strictEqual(git.getRepoRootDir(bareDir), bareDir);
+    assert.strictEqual(fs.realpathSync(git.getRepoRootDir(wtBarePath)), fs.realpathSync(bareDir));
+    assert.strictEqual(fs.realpathSync(git.getRepoRootDir(bareDir)), fs.realpathSync(bareDir));
 
     const worktrees = git.getWorktrees({ bareRepo: bareDir });
-    assert.ok(worktrees.some(wt => path.resolve(wt.path) === path.resolve(wtBarePath)));
+    assert.ok(worktrees.some(wt => fs.realpathSync(wt.path) === fs.realpathSync(wtBarePath)));
 
     git.removeWorktree(wtBarePath, { force: true, bareRepo: bareDir });
     git.pruneWorktrees({ bareRepo: bareDir });
