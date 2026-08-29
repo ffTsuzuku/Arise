@@ -16,3 +16,22 @@ coverage/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Vim temporary files
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+*.swp
+*.swo
+*.swn
+.*.swp
+.*.swo
+.*.swn
+[._]*.un~
+Session.vim
+Sessionx.vim
+.netrwhist
+*~
+
