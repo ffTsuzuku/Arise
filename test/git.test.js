@@ -92,4 +92,22 @@ test("Git operations and worktree creation", async (t) => {
     git.pruneWorktrees({ bareRepo: bareDir });
     assert.strictEqual(fs.existsSync(wtBarePath), false);
   });
+
+  await t.test("nuke handles leftover worktree directory under worktreesBase", async () => {
+    const { executeNuke } = require("../lib/lifecycle/nuke");
+    const { resolveConfiguration } = require("../lib/config");
+
+    const wtPath = path.join(tmpDir, "leftover-wt");
+    fs.mkdirSync(wtPath, { recursive: true });
+    fs.writeFileSync(path.join(wtPath, "file.txt"), "leftover data");
+
+    const config = resolveConfiguration({}, repoDir);
+    config.repo.worktreesBase = tmpDir;
+    config.repo.bareRepo = repoDir;
+
+    // Simulate nuking from within the leftover directory
+    await executeNuke({ force: true, yes: true, dirOnly: true }, config, wtPath);
+
+    assert.strictEqual(fs.existsSync(wtPath), false);
+  });
 });

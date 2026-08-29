@@ -82,6 +82,7 @@ mkdir -p bootstrap/cache
 chmod 777 bootstrap/cache
 mkdir -p storage/temp
 chmod 777 storage/temp
+chmod -R 777 storage bootstrap/cache 2>/dev/null || true
 if [ -d .githooks ]; then git config core.hooksPath .githooks; fi
 `;
         ctx.exec(permissionsScript);
@@ -108,6 +109,14 @@ if [ -d .githooks ]; then git config core.hooksPath .githooks; fi
               fs.unlinkSync(symlinkPath);
             }
           }
+        } catch (e) {}
+      }
+
+      // Proactively clear Laravel caches if artisan exists before worktree removal
+      const artisanPath = path.join(ctx.worktreePath, 'artisan');
+      if (fs.existsSync(artisanPath)) {
+        try {
+          ctx.exec('php artisan optimize:clear 2>/dev/null || true');
         } catch (e) {}
       }
     },
