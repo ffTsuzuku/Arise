@@ -91,5 +91,19 @@ test('CLI Argument Parsing', async (t) => {
     const flagsPositional = parseArgs(['menu']);
     assert.equal(flagsPositional.interactive, true);
   });
+
+  await t.test('parses debug and verbose flags correctly', () => {
+    const flagsDebug = parseArgs(['--debug']);
+    assert.equal(flagsDebug.debug, true);
+
+    const flagsVerbose = parseArgs(['-V']);
+    assert.equal(flagsVerbose.verbose, true);
+    assert.equal(flagsVerbose.debug, true);
+
+    const flagsVerboseLong = parseArgs(['--verbose']);
+    assert.equal(flagsVerboseLong.verbose, true);
+    assert.equal(flagsVerboseLong.debug, true);
+  });
 });
+
 

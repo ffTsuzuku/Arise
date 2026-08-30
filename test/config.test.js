@@ -152,4 +152,35 @@ test('Preset Registry & Resolution', async (t) => {
       } catch (e) {}
     }
   });
+
+  await t.test('loads and parses .ariserc.json containing comments (JSONC) and 5-pane custom layout', () => {
+    const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arise-jsonc-test-'));
+    try {
+      const jsoncContent = `// Arise Local Repository Configuration
+// SETTINGS REFERENCE
+/* Block comment explaining options */
+{
+  "$schema": "./arise.schema.json",
+  "preset": "node",
+  "layout": [
+    { "id": "vim", "title": "editor", "cmd": "vim .", "position": "root" },
+    { "id": "server", "title": "dev server", "cmd": null, "from": "vim", "split": "right" },
+    { "id": "shell", "title": "shell", "cmd": null, "from": "server", "split": "down" },
+    { "id": "test", "title": "test runner", "cmd": "agy", "from": "shell", "split": "right" },
+    { "id": "logs", "title": "system logs", "cmd": null, "from": "test", "split": "down", "isAgent": true, "focus": true }
+  ]
+}
+`;
+      fs.writeFileSync(path.join(testDir, '.ariserc.json'), jsoncContent, 'utf8');
+
+      const resolved = resolveConfiguration({}, testDir);
+      assert.equal(resolved.layout.length, 5);
+      assert.equal(resolved.layout[0].id, 'vim');
+      assert.equal(resolved.layout[4].id, 'logs');
+      assert.equal(resolved.layout[4].isAgent, true);
+    } finally {
+      fs.rmSync(testDir, { recursive: true, force: true });
+    }
+  });
 });
+

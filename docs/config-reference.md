@@ -80,6 +80,9 @@ An array of pane definitions:
 | Flag | Aliases | Description |
 |---|---|---|
 | *(none)* | | Running `arise` with zero arguments launches the interactive TUI menu |
+| `init` | `--init` | Run the interactive Arise configuration initialization wizard (`.ariserc.json`) |
+| `--quick` | `-q` | (Wizard option) Fast-path setup with detected repo defaults |
+| `--target <path>` | `--out <path>` | (Wizard option) Custom destination path for generated configuration |
 | `--interactive` | `-I`, `--menu` | Explicitly launch interactive prompt/menu |
 | `--branch <name>` | `-b <name>` | Git branch to create or boot into |
 | `--dirname <dir>` | `-d <dir>` | Directory name for the worktree (defaults to sanitized branch) |
@@ -94,6 +97,8 @@ An array of pane definitions:
 | `--force` | `-f` | Force worktree deletion if uncommitted changes exist |
 | `--install-skill` | `-i` | Install agent skills (`--global` or `--local`) |
 | `--yes` | `-y` | Auto-confirm interactive prompts |
+| `--debug` | | Enable verbose debug logging to stderr and log file (`~/.config/arise/logs/arise.log`) |
+| `--verbose` | `-V` | Alias for `--debug` |
 | `--help` | `-h` | Show help and usage |
 | `--version` | `-v` | Show version |
 

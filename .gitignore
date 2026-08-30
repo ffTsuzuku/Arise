@@ -33,5 +33,5 @@ yarn-error.log*
 Session.vim
 Sessionx.vim
 .netrwhist
-*~
-
+# Agent Skills
+.agents/

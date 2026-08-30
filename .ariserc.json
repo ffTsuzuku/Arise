@@ -1,53 +1,75 @@
+// Arise Local Repository Configuration (.ariserc.json)
+// Documentation & Guide: https://github.com/tsuzuku/arise
+//
+// SETTINGS REFERENCE:
+// • preset: Preset name ('node' | 'laravel' | 'generic' | custom)
+// • repo.defaultBaseBranch: Default branch to branch off when creating worktrees
+// • repo.protectedBranches: Branches protected from deletion during --nuke
+// • repo.bareRepo: Path to bare repository (if using bare git topology)
+// • repo.worktreesBase: Base directory where worktrees are created
+// • workspace.agent: CLI AI agent ('agy' | 'claude' | 'aider' | 'copilot' | 'none')
+// • workspace.defaultFocus: Pane to focus on workspace boot ('agy' | 'vim' | 'server' | 'shell')
+// • workspace.labelPrefix: Prefix added to Herdr workspace labels (e.g. '[BE] ')
+// • layout: Declarative terminal layout definitions (id, title, cmd, position, from, split, focus, isAgent)
+// • scaffold.envSource: Source .env template file to copy into worktree
+// • scaffold.install: Command to run to install dependencies upon creation
+// • scaffold.symlink: Optional symlink to point to the active worktree
 {
-  "$schema": "./arise.schema.json",
-  "preset": "node",
+  "preset": "retest",
   "repo": {
     "defaultBaseBranch": "main",
     "protectedBranches": [
       "main",
-      "master"
-    ]
+      "master",
+      "develop",
+      "prod",
+      "staging"
+    ],
+    "bareRepo": "/Users/tsuzuku/Git/arise/.bare",
+    "worktreesBase": "/Users/tsuzuku/Git/arise/worktrees"
   },
   "workspace": {
-    "labelPrefix": "[arise] ",
-    "agent": {
-      "cmd": "agy --dangerously-skip-permissions",
-      "title": "agy"
-    },
-    "defaultFocus": "agy"
+    "agent": "agy",
+    "defaultFocus": "agy",
+    "labelPrefix": ""
   },
   "layout": [
     {
       "id": "vim",
-      "title": "vim",
+      "title": "editor",
       "cmd": "vim .",
-      "position": "root"
+      "position": "root",
+      "focus": true
     },
     {
-      "id": "test",
-      "title": "test watcher",
-      "cmd": "node --watch --test test/*.test.js",
-      "split": "right",
-      "from": "vim"
+      "id": "server",
+      "title": "dev server",
+      "cmd": null,
+      "from": "vim",
+      "split": "right"
     },
     {
       "id": "shell",
       "title": "shell",
       "cmd": null,
-      "split": "down",
-      "from": "vim"
+      "from": "server",
+      "split": "down"
     },
     {
-      "id": "agy",
-      "title": "agy",
-      "cmd": "agy --dangerously-skip-permissions",
-      "split": "down",
+      "id": "test",
+      "title": "test runner",
+      "cmd": "agy",
+      "from": "shell",
+      "split": "right"
+    },
+    {
+      "id": "logs",
+      "title": "system logs",
+      "cmd": null,
       "from": "test",
-      "focus": true,
-      "isAgent": true
+      "split": "down",
+      "isAgent": true,
+      "focus": true
     }
-  ],
-  "scaffold": {
-    "install": "npm install"
-  }
+  ]
 }

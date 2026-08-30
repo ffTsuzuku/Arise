@@ -7,12 +7,16 @@
 
 export interface CliFlags {
   interactive: boolean;
+  isInit: boolean;
+  quick: boolean;
   isCleanup: boolean;
   cleanupTarget: string | null;
   dirOnly: boolean;
   keepRemote: boolean;
   force: boolean;
   yes: boolean;
+  debug: boolean;
+  verbose: boolean;
   branch: string | null;
   dirname: string | null;
   workspaceName: string | null;
@@ -22,6 +26,7 @@ export interface CliFlags {
   focusTarget: string | null;
   installSkill: boolean;
   skillScope: 'global' | 'local' | null;
+  targetPath: string | null;
   showHelp: boolean;
   showVersion: boolean;
   rawArgs: string[];
@@ -156,3 +161,40 @@ export interface WorktreeConfig {
   /** Path to config file that was loaded (if any) */
   configFile?: string | null;
 }
+
+export interface InitWizardOptions {
+  quick?: boolean;
+  local?: boolean;
+  global?: boolean;
+  targetPath?: string;
+  cwd?: string;
+  force?: boolean;
+}
+
+export interface SelectOption<T = string> {
+  label: string;
+  value: T;
+  hint?: string;
+  description?: string;
+}
+
+export interface MultiSelectOption<T = string> {
+  label: string;
+  value: T;
+  hint?: string;
+  description?: string;
+  selected?: boolean;
+}
+
+export interface PromptTextOptions {
+  message?: string;
+  question?: string;
+  defaultValue?: string;
+  validate?: (val: string) => boolean | string;
+  completer?: import('readline').Completer | 'path' | 'dir';
+}
+
+export declare class ConfigInitWizard {
+  static run(options?: InitWizardOptions): Promise<string | null>;
+}
+

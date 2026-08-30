@@ -31,7 +31,16 @@ Aliases provided: `arise`, `herdr-worktree`, `herder-worktree`, and `hwk`.
 
 ## Quick Start
 
-### 1. Interactive Menu / TUI Mode (Zero Arguments)
+### 1. Interactive Setup Wizard (`arise init`)
+```bash
+# Run interactive configuration wizard (Quick or Guided Step-by-Step)
+arise init
+
+# Fast-path quick initialization with detected repo defaults
+arise init --quick
+```
+
+### 2. Interactive Menu / TUI Mode (Zero Arguments)
 ```bash
 # Launch interactive menu
 arise
@@ -41,6 +50,7 @@ Interactive options include:
 - 🔄 **Switch / Open existing worktree in Herdr**
 - 📋 **List worktrees** (with active Herdr workspace status)
 - 🧹 **Nuke / Cleanup worktree** (multi-select / picker with branch deletion options)
+- ⚙️ **Initialize / Configure Arise** (interactive setup wizard)
 
 ### 2. Create a Worktree Session (CLI Flags)
 ```bash
