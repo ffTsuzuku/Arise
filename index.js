@@ -34,6 +34,7 @@ async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
         global: flags.skillScope === 'global' && flags.rawArgs.includes('--global'),
         targetPath: flags.targetPath,
         force: flags.force,
+        gitignore: flags.gitignore,
         cwd,
       });
       return;

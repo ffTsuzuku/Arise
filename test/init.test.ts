@@ -72,4 +72,27 @@ describe('ConfigInitWizard (TypeScript)', () => {
 
     rmSync(tempDir, { recursive: true, force: true });
   });
+
+  it('adds config to .gitignore in quick mode when gitignore option is true', async () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'arise-ts-init-git-'));
+    const targetPath = join(tempDir, '.ariserc.json');
+    const gitignorePath = join(tempDir, '.gitignore');
+    writeFileSync(gitignorePath, 'node_modules/\n', 'utf8');
+
+    const result = await ConfigInitWizard.run({
+      quick: true,
+      local: true,
+      targetPath,
+      cwd: tempDir,
+      force: true,
+      gitignore: true,
+    });
+
+    assert.equal(result, targetPath);
+    assert.ok(existsSync(gitignorePath));
+    const gitignoreContent = readFileSync(gitignorePath, 'utf8');
+    assert.ok(gitignoreContent.includes('.ariserc.json'));
+
+    rmSync(tempDir, { recursive: true, force: true });
+  });
 });

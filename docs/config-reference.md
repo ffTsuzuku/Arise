@@ -83,6 +83,8 @@ An array of pane definitions:
 | `init` | `--init` | Run the interactive Arise configuration initialization wizard (`.ariserc.json`) |
 | `--quick` | `-q` | (Wizard option) Fast-path setup with detected repo defaults |
 | `--target <path>` | `--out <path>` | (Wizard option) Custom destination path for generated configuration |
+| `--gitignore` | | (Wizard option) Add generated configuration file to `.gitignore` |
+| `--no-gitignore` | | (Wizard option) Do not add generated configuration file to `.gitignore` |
 | `--interactive` | `-I`, `--menu` | Explicitly launch interactive prompt/menu |
 | `--branch <name>` | `-b <name>` | Git branch to create or boot into |
 | `--dirname <dir>` | `-d <dir>` | Directory name for the worktree (defaults to sanitized branch) |

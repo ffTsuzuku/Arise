@@ -33,11 +33,12 @@ Aliases provided: `arise`, `herdr-worktree`, `herder-worktree`, and `hwk`.
 
 ### 1. Interactive Setup Wizard (`arise init`)
 ```bash
-# Run interactive configuration wizard (Quick or Guided Step-by-Step)
+# Run interactive configuration wizard (Quick or Guided Step-by-Step, with .gitignore prompt)
 arise init
 
-# Fast-path quick initialization with detected repo defaults
+# Fast-path quick initialization with detected repo defaults (optionally adding to .gitignore)
 arise init --quick
+arise init --quick --gitignore
 ```
 
 ### 2. Interactive Menu / TUI Mode (Zero Arguments)

@@ -27,6 +27,7 @@ export interface CliFlags {
   installSkill: boolean;
   skillScope: 'global' | 'local' | null;
   targetPath: string | null;
+  gitignore: boolean | null;
   showHelp: boolean;
   showVersion: boolean;
   rawArgs: string[];
@@ -169,6 +170,8 @@ export interface InitWizardOptions {
   targetPath?: string;
   cwd?: string;
   force?: boolean;
+  gitignore?: boolean | null;
+  addToGitignore?: boolean | null;
 }
 
 export interface SelectOption<T = string> {

@@ -1,6 +1,6 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join, relative as pathRelative } from 'node:path';
 import { homedir } from 'node:os';
 import { ANSI, drawBox } from '../tui/ansi.js';
 import { promptConfirm, promptMultiSelect, promptSelect, promptText } from '../tui/prompt.js';
@@ -12,6 +12,8 @@ export interface InitWizardOptions {
   targetPath?: string;
   cwd?: string;
   force?: boolean;
+  gitignore?: boolean | null;
+  addToGitignore?: boolean | null;
 }
 
 export class ConfigInitWizard {
@@ -134,6 +136,7 @@ export class ConfigInitWizard {
 ${JSON.stringify(configObj, null, 2)}
 `;
     await writeFile(targetFilePath, content, 'utf8');
+    await this.handleGitignore(targetFilePath, isLocal, cwd, options);
     this.printSuccessCard(targetFilePath, 'Configuration created with recommended defaults.');
     return targetFilePath;
   }
@@ -391,8 +394,64 @@ ${JSON.stringify(configObj, null, 2)}
 ${JSON.stringify(configObj, null, 2)}
 `;
     await writeFile(targetFilePath, content, 'utf8');
+    await this.handleGitignore(targetFilePath, isLocal, cwd, options);
     this.printSuccessCard(targetFilePath, 'Configuration saved successfully.');
     return targetFilePath;
+  }
+
+  private static async handleGitignore(targetFilePath: string, isLocal: boolean, cwd: string, options: InitWizardOptions = {}): Promise<boolean> {
+    if (!isLocal) {
+      return false;
+    }
+
+    const gitignorePath = join(cwd, '.gitignore');
+    const relPath = pathRelative(cwd, targetFilePath);
+    const configFileName = (relPath && !relPath.startsWith('..')) ? relPath : basename(targetFilePath);
+
+    let existingContent = '';
+    if (existsSync(gitignorePath)) {
+      try {
+        existingContent = readFileSync(gitignorePath, 'utf8');
+      } catch {}
+    }
+
+    const lines = existingContent.split(/\r?\n/).map((l) => l.trim());
+    const isAlreadyIgnored =
+      lines.includes(configFileName) ||
+      lines.includes(`/${configFileName}`) ||
+      (basename(targetFilePath) !== configFileName && lines.includes(basename(targetFilePath)));
+
+    if (isAlreadyIgnored) {
+      return false;
+    }
+
+    let shouldAdd = false;
+    if (typeof options.gitignore === 'boolean') {
+      shouldAdd = options.gitignore;
+    } else if (typeof options.addToGitignore === 'boolean') {
+      shouldAdd = options.addToGitignore;
+    } else if (process.stdin.isTTY) {
+      const wantGitignore = await promptConfirm({
+        message: `Add ${configFileName} to .gitignore?`,
+        defaultYes: false,
+      });
+      shouldAdd = Boolean(wantGitignore);
+    }
+
+    if (shouldAdd) {
+      try {
+        const needsNewline = existingContent.length > 0 && !existingContent.endsWith('\n');
+        const appendContent = `${needsNewline ? '\n' : ''}${configFileName}\n`;
+        await writeFile(gitignorePath, existingContent + appendContent, 'utf8');
+        console.log(`  ${ANSI.green}✔ Added ${configFileName} to .gitignore${ANSI.reset}`);
+        return true;
+      } catch (err) {
+        console.warn(`  ${ANSI.yellow}Warning: Failed to update .gitignore: ${(err as Error).message}${ANSI.reset}`);
+        return false;
+      }
+    }
+
+    return false;
   }
 
   private static printSuccessCard(filePath: string, message: string): void {

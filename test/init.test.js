@@ -99,6 +99,14 @@ test('CLI Argument Parsing for Init Wizard', async (t) => {
     assert.equal(flags3.quick, true);
     assert.equal(flags3.force, true);
     assert.equal(flags3.targetPath, '/tmp/custom.json');
+
+    const flags4 = parseArgs(['init', '--gitignore']);
+    assert.equal(flags4.isInit, true);
+    assert.equal(flags4.gitignore, true);
+
+    const flags5 = parseArgs(['init', '--no-gitignore']);
+    assert.equal(flags5.isInit, true);
+    assert.equal(flags5.gitignore, false);
   });
 });
 
@@ -253,6 +261,70 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     const focusedPane = config.layout.find(p => p.id === config.workspace.defaultFocus);
     assert.ok(focusedPane, 'Focused pane must exist in layout array');
     assert.equal(focusedPane.focus, true);
+
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  await t.test('adds config to .gitignore when gitignore option is true', async () => {
+    const tempDir = createTempDir('arise-gitignore-add-');
+    const gitignorePath = path.join(tempDir, '.gitignore');
+    fs.writeFileSync(gitignorePath, 'node_modules/\n.env\n', 'utf8');
+
+    const configPath = await ConfigInitWizard.run({
+      quick: true,
+      local: true,
+      cwd: tempDir,
+      force: true,
+      gitignore: true,
+    });
+
+    assert.ok(configPath);
+    assert.ok(fs.existsSync(gitignorePath));
+    const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+    assert.ok(gitignoreContent.includes('.ariserc.json'));
+    assert.ok(gitignoreContent.includes('node_modules/'));
+
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  await t.test('does not add config to .gitignore when gitignore option is false', async () => {
+    const tempDir = createTempDir('arise-gitignore-skip-');
+    const gitignorePath = path.join(tempDir, '.gitignore');
+    fs.writeFileSync(gitignorePath, 'node_modules/\n', 'utf8');
+
+    const configPath = await ConfigInitWizard.run({
+      quick: true,
+      local: true,
+      cwd: tempDir,
+      force: true,
+      gitignore: false,
+    });
+
+    assert.ok(configPath);
+    const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+    assert.ok(!gitignoreContent.includes('.ariserc.json'));
+    assert.equal(gitignoreContent.trim(), 'node_modules/');
+
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  await t.test('does not duplicate .gitignore entry if config is already ignored', async () => {
+    const tempDir = createTempDir('arise-gitignore-dedup-');
+    const gitignorePath = path.join(tempDir, '.gitignore');
+    fs.writeFileSync(gitignorePath, 'node_modules/\n.ariserc.json\n', 'utf8');
+
+    const configPath = await ConfigInitWizard.run({
+      quick: true,
+      local: true,
+      cwd: tempDir,
+      force: true,
+      gitignore: true,
+    });
+
+    assert.ok(configPath);
+    const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+    const matches = gitignoreContent.match(/\.ariserc\.json/g);
+    assert.equal(matches ? matches.length : 0, 1);
 
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
