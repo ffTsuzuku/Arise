@@ -28,6 +28,7 @@ arise/
 │   └── cli.js                 # Executable CLI entrypoint (#!/usr/bin/env node)
 ├── lib/
 │   ├── cli.js                 # CLI argument parsing, flags, and help text
+│   ├── interactive.js         # Interactive TUI prompt and zero-argument menu handler
 │   ├── config.js              # Config file discovery (.ariserc / .worktreerc) and preset merging
 │   ├── context.js             # Execution context helper passed into lifecycle hooks
 │   ├── git.js                 # Git operations (worktrees, branches, remote checks, prune)

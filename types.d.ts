@@ -6,6 +6,7 @@
  */
 
 export interface CliFlags {
+  interactive: boolean;
   isCleanup: boolean;
   cleanupTarget: string | null;
   dirOnly: boolean;

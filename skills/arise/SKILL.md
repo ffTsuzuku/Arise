@@ -11,6 +11,12 @@ Use this skill to answer questions about `arise` and run worktree management com
 
 ## 1. CLI Quick Reference & Cheatsheet
 
+### Interactive Mode
+```bash
+# Launch interactive menu (create, switch/open, list, nuke)
+arise
+```
+
 ### Creating Worktrees
 ```bash
 # Create or open a worktree for a branch (auto-detects preset, boots Herdr workspace)

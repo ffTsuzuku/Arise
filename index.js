@@ -27,9 +27,20 @@ async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
 
   if (flags.isCleanup) {
     await executeNuke(flags, config, cwd);
-  } else {
-    await executeCreate(flags, config, cwd);
+    return;
   }
+
+  // Interactive CLI / TUI Mode (arise with zero args or --interactive flag)
+  const isZeroArgs = flags.rawArgs.length === 0 && !flags.branch;
+  if (flags.interactive || isZeroArgs) {
+    if (process.stdin.isTTY || flags.interactive) {
+      const { startInteractiveMenu } = require('./lib/interactive');
+      await startInteractiveMenu(flags, config, cwd);
+      return;
+    }
+  }
+
+  await executeCreate(flags, config, cwd);
 }
 
 module.exports = {

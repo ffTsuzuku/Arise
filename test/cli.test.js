@@ -77,4 +77,19 @@ test('CLI Argument Parsing', async (t) => {
     const flagsShort = parseArgs(['-b', 'feature/auth', '-y']);
     assert.equal(flagsShort.yes, true);
   });
+
+  await t.test('parses interactive flags correctly', () => {
+    const flagsLong = parseArgs(['--interactive']);
+    assert.equal(flagsLong.interactive, true);
+
+    const flagsShort = parseArgs(['-I']);
+    assert.equal(flagsShort.interactive, true);
+
+    const flagsMenu = parseArgs(['--menu']);
+    assert.equal(flagsMenu.interactive, true);
+
+    const flagsPositional = parseArgs(['menu']);
+    assert.equal(flagsPositional.interactive, true);
+  });
 });
+

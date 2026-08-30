@@ -26,6 +26,12 @@ test("Git operations and worktree creation", async (t) => {
     assert.strictEqual(git.branchExistsLocally("non-existent", { repoDir }), false);
   });
 
+  await t.test("lists local branches correctly", () => {
+    const branches = git.getLocalBranches({ repoDir });
+    assert.ok(Array.isArray(branches));
+    assert.ok(branches.includes("main"));
+  });
+
   await t.test("creates worktree off existing local branch", () => {
     const wtPath = path.join(tmpDir, "feature-wt");
     git.createWorktree({

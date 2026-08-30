@@ -72,3 +72,28 @@ An array of pane definitions:
   }
 }
 ```
+
+---
+
+## CLI Flags Reference
+
+| Flag | Aliases | Description |
+|---|---|---|
+| *(none)* | | Running `arise` with zero arguments launches the interactive TUI menu |
+| `--interactive` | `-I`, `--menu` | Explicitly launch interactive prompt/menu |
+| `--branch <name>` | `-b <name>` | Git branch to create or boot into |
+| `--dirname <dir>` | `-d <dir>` | Directory name for the worktree (defaults to sanitized branch) |
+| `--workspace <name>` | `-w <name>` | Custom Herdr workspace name |
+| `--source <branch>` | `-s`, `--base` | Base source branch for new branch creation |
+| `--preset <name>` | `-p <name>` | Override project preset (`node`, `laravel`, `generic`) |
+| `--agent <name>` | `-a <name>` | AI CLI agent (`agy`, `claude`, `aider`, `copilot`, `none`) |
+| `--focus <pane>` | `-f <pane>` | Focus target pane |
+| `--nuke [<target>]` | `-n`, `--cleanup`, `-c` | Safe teardown: closes Herdr workspace, removes worktree, deletes branches |
+| `--dir-only` | `--keep-branch` | Only remove worktree directory; preserve branches |
+| `--keep-remote` | `--local-only` | Delete local branch, preserve remote on origin |
+| `--force` | `-f` | Force worktree deletion if uncommitted changes exist |
+| `--install-skill` | `-i` | Install agent skills (`--global` or `--local`) |
+| `--yes` | `-y` | Auto-confirm interactive prompts |
+| `--help` | `-h` | Show help and usage |
+| `--version` | `-v` | Show version |
+

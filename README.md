@@ -6,6 +6,7 @@ Unified, workplace-agnostic Git worktree and Herdr workspace orchestrator with p
 
 ## Features
 
+- **Interactive TUI Mode**: Run `arise` with zero arguments for an interactive menu (create worktrees, switch/open existing sessions, list worktrees with Herdr status, nuke/cleanup with multi-picker, and install AI agent skills).
 - **Unified Lifecycle**: Handles git worktree creation, branch resolution, Herdr workspace orchestration, 4-pane quadrant terminal setup, and safe teardown/nuke.
 - **Pluggable Presets**: Built-in support for **Node.js** (`npm`/`yarn`/`pnpm`), **Laravel/PHP** (`composer`, logs, permissions), and **Generic** projects.
 - **Zero-Config Auto-Detection**: Automatically detects project types based on directory markers (`package.json`, `composer.json`, `artisan`, etc.).
@@ -21,7 +22,7 @@ Unified, workplace-agnostic Git worktree and Herdr workspace orchestrator with p
 npm install -g arise
 
 # Or run directly without installing via npx
-npx arise --branch <branch-name>
+npx arise
 ```
 
 Aliases provided: `arise`, `herdr-worktree`, `herder-worktree`, and `hwk`.
@@ -30,7 +31,18 @@ Aliases provided: `arise`, `herdr-worktree`, `herder-worktree`, and `hwk`.
 
 ## Quick Start
 
-### 1. Create a Worktree Session
+### 1. Interactive Menu / TUI Mode (Zero Arguments)
+```bash
+# Launch interactive menu
+arise
+```
+Interactive options include:
+- 🚀 **Create new worktree** (select base source branch, enter branch name)
+- 🔄 **Switch / Open existing worktree in Herdr**
+- 📋 **List worktrees** (with active Herdr workspace status)
+- 🧹 **Nuke / Cleanup worktree** (multi-select / picker with branch deletion options)
+
+### 2. Create a Worktree Session (CLI Flags)
 ```bash
 # Auto-detects project type (Node, Laravel, etc.)
 arise --branch feature/login
@@ -46,7 +58,7 @@ arise --branch feature/login -a aider
 arise --branch feature/login --source develop --focus claude
 ```
 
-### 2. Nuke / Clean Up a Worktree
+### 3. Nuke / Clean Up a Worktree
 ```bash
 # Inside a worktree directory (auto-detects current worktree):
 arise --nuke
@@ -61,7 +73,7 @@ arise --nuke feature-login --dir-only
 arise --nuke feature-login --keep-remote
 ```
 
-### 3. Install AI Agent Skill (Antigravity `agy`, Claude Code, etc.)
+### 4. Install AI Agent Skill (Antigravity `agy`, Claude Code, etc.)
 ```bash
 # Install globally to ~/.agents/skills and link to ~/.gemini/skills:
 arise --install-skill
@@ -108,6 +120,7 @@ arise/
 │   └── cli.js             # Executable CLI
 ├── lib/
 │   ├── cli.js             # CLI argument parsing & help output
+│   ├── interactive.js     # Interactive TUI menu & prompt handlers
 │   ├── config.js          # Config discovery & preset merging
 │   ├── git.js             # Git worktree & branch operations
 │   ├── herdr.js           # Herdr workspace & pane operations
