@@ -231,6 +231,31 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
 
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
+
+  await t.test('guided init sets focus flag on matching pane definition in layout', async () => {
+    const tempDir = createTempDir('arise-focus-test-');
+    const targetFile = path.join(tempDir, '.ariserc.json');
+
+    const configPath = await ConfigInitWizard.run({
+      quick: false,
+      local: true,
+      targetPath: targetFile,
+      cwd: tempDir,
+      force: true,
+    });
+
+    assert.equal(configPath, targetFile);
+    const content = fs.readFileSync(targetFile, 'utf8');
+    const jsonStr = content.replace(/\/\/.*$/gm, '').trim();
+    const config = JSON.parse(jsonStr);
+
+    assert.ok(config.workspace.defaultFocus);
+    const focusedPane = config.layout.find(p => p.id === config.workspace.defaultFocus);
+    assert.ok(focusedPane, 'Focused pane must exist in layout array');
+    assert.equal(focusedPane.focus, true);
+
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
 });
 
 

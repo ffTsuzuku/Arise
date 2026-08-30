@@ -15,7 +15,8 @@
 // • scaffold.install: Command to run to install dependencies upon creation
 // • scaffold.symlink: Optional symlink to point to the active worktree
 {
-  "preset": "retest",
+  "$schema": "./arise.schema.json",
+  "preset": "wiztest",
   "repo": {
     "defaultBaseBranch": "main",
     "protectedBranches": [
@@ -30,46 +31,51 @@
   },
   "workspace": {
     "agent": "agy",
-    "defaultFocus": "agy",
-    "labelPrefix": ""
+    "defaultFocus": "echo",
+    "labelPrefix": "[Arise]"
   },
   "layout": [
     {
-      "id": "vim",
-      "title": "editor",
-      "cmd": "vim .",
-      "position": "root",
-      "focus": true
+      "id": "pane-1",
+      "title": "Pane 1",
+      "cmd": null,
+      "position": "root"
     },
     {
-      "id": "server",
-      "title": "dev server",
+      "id": "pane-2",
+      "title": "Pane 2",
       "cmd": null,
-      "from": "vim",
+      "from": "pane-1",
       "split": "right"
     },
     {
-      "id": "shell",
-      "title": "shell",
-      "cmd": null,
-      "from": "server",
+      "id": "pane-3",
+      "title": "Pane 3",
+      "cmd": "agyx",
+      "from": "pane-2",
       "split": "down"
     },
     {
-      "id": "test",
-      "title": "test runner",
-      "cmd": "agy",
-      "from": "shell",
-      "split": "right"
+      "id": "pane-4",
+      "title": "okay?",
+      "cmd": "vim .",
+      "from": "pane-1",
+      "split": "down"
     },
     {
-      "id": "logs",
-      "title": "system logs",
-      "cmd": null,
-      "from": "test",
-      "split": "down",
-      "isAgent": true,
+      "id": "echo",
+      "title": "echo",
+      "cmd": "echo \"hello world\"",
+      "from": "pane-1",
+      "split": "right",
       "focus": true
+    },
+    {
+      "id": "last",
+      "title": "last",
+      "cmd": null,
+      "from": "pane-4",
+      "split": "down"
     }
   ]
 }

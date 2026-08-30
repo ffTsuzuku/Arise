@@ -218,8 +218,9 @@ ${JSON.stringify(configObj, null, 2)}
       const paneCount = parseInt(paneCountInput?.trim() || '4', 10) || 4;
 
       for (let i = 1; i <= paneCount; i++) {
-        const defaultId = i === 1 ? 'vim' : (i === 2 ? 'server' : (i === 3 ? 'shell' : (i === 4 ? 'test' : (i === 5 ? 'logs' : 'agy'))));
-        const defaultTitle = i === 1 ? 'editor' : (i === 2 ? 'dev server' : (i === 3 ? 'shell' : (i === 4 ? 'test runner' : (i === 5 ? 'logs' : 'ai agent'))));
+        const defaultId = `pane-${i}`;
+        const defaultTitle = `Pane ${i}`;
+        const defaultCmd = '';
 
         const paneIdInput = await promptText({
           message: `Pane ${i} unique identifier (id):`,
@@ -234,7 +235,6 @@ ${JSON.stringify(configObj, null, 2)}
         });
         const paneTitle = paneTitleInput?.trim() || paneId;
 
-        const defaultCmd = i === 1 ? 'vim .' : (i === 2 && presetChoice === 'node' ? 'npm run dev' : (i === paneCount && agentChoice !== 'none' ? agentChoice : ''));
         const paneCmdInput = await promptText({
           message: `Pane ${i} startup command (leave empty for clean shell):`,
           defaultValue: defaultCmd,
@@ -273,20 +273,11 @@ ${JSON.stringify(configObj, null, 2)}
           paneDef.split = splitDir || 'right';
         }
 
-        const isAgent = await promptConfirm({
-          message: `Designate Pane "${paneTitle}" as the AI CLI Agent pane?`,
-          defaultYes: paneId === 'agy' || paneId === 'agent' || (i === paneCount && agentChoice !== 'none'),
-        });
-        if (isAgent) {
-          paneDef.isAgent = true;
-        }
-
-        const shouldFocus = await promptConfirm({
-          message: `Focus Pane "${paneTitle}" by default on workspace boot?`,
-          defaultYes: isAgent || i === 1,
-        });
-        if (shouldFocus) {
-          paneDef.focus = true;
+        // Auto-detect agent designation from command or ID without redundant yes/no prompts
+        if (agentChoice !== 'none') {
+          if (paneCmd === agentChoice || paneId === agentChoice || paneId === 'agy' || paneId === 'agent' || paneId === 'ai') {
+            paneDef.isAgent = true;
+          }
         }
 
         configuredLayout.push(paneDef);
@@ -301,29 +292,77 @@ ${JSON.stringify(configObj, null, 2)}
       const agentCmd = agentChoice === 'none' ? null : agentChoice;
       const agentTitle = agentChoice === 'none' ? 'shell' : agentChoice;
 
+      let defaultServerCmd = '';
+      if (presetChoice === 'node') defaultServerCmd = 'npm run dev';
+      else if (presetChoice === 'laravel') defaultServerCmd = 'tail -f storage/logs/laravel.log';
+
+      let serverCmd: string | null = null;
+      if (layoutStyleChoice === 'quadrant' || layoutStyleChoice === 'three_pane') {
+        const serverCmdInput = await promptText({
+          message: 'Dev server / logs startup command (Top-Right pane, leave empty for shell):',
+          defaultValue: defaultServerCmd,
+        });
+        serverCmd = serverCmdInput?.trim() || null;
+      }
+
+      const serverTitle = serverCmd
+        ? (presetChoice === 'laravel' ? 'logs' : 'server')
+        : 'shell';
+
       if (layoutStyleChoice === 'quadrant') {
         configuredLayout = [
           { id: 'vim', title: 'vim', cmd: editorCmd, position: 'root' },
-          { id: 'server', title: presetChoice === 'laravel' ? 'logs' : 'server', cmd: presetChoice === 'node' ? 'npm run dev' : null, split: 'right', from: 'vim' },
+          { id: 'server', title: serverTitle, cmd: serverCmd, split: 'right', from: 'vim' },
           { id: 'shell', title: 'shell', cmd: null, split: 'down', from: 'vim' },
-          { id: 'agy', title: agentTitle, cmd: agentCmd, split: 'down', from: 'server', focus: true, isAgent: true },
+          { id: 'agy', title: agentTitle, cmd: agentCmd, split: 'down', from: 'server', isAgent: true },
         ];
       } else if (layoutStyleChoice === 'three_pane') {
         configuredLayout = [
           { id: 'vim', title: 'vim', cmd: editorCmd, position: 'root' },
-          { id: 'server', title: presetChoice === 'laravel' ? 'logs' : 'server', cmd: presetChoice === 'node' ? 'npm run dev' : null, split: 'right', from: 'vim' },
-          { id: 'agy', title: agentTitle, cmd: agentCmd, split: 'down', from: 'server', focus: true, isAgent: true },
+          { id: 'server', title: serverTitle, cmd: serverCmd, split: 'right', from: 'vim' },
+          { id: 'agy', title: agentTitle, cmd: agentCmd, split: 'down', from: 'server', isAgent: true },
         ];
       } else if (layoutStyleChoice === 'split_vertical') {
         configuredLayout = [
           { id: 'vim', title: 'editor', cmd: editorCmd, position: 'root' },
-          { id: 'agy', title: agentTitle, cmd: agentCmd, split: 'right', from: 'vim', focus: true, isAgent: true },
+          { id: 'agy', title: agentTitle, cmd: agentCmd, split: 'right', from: 'vim', isAgent: true },
         ];
       } else {
         configuredLayout = [
           { id: 'vim', title: 'editor', cmd: editorCmd, position: 'root' },
-          { id: 'agy', title: agentTitle, cmd: agentCmd, split: 'down', from: 'vim', focus: true, isAgent: true },
+          { id: 'agy', title: agentTitle, cmd: agentCmd, split: 'down', from: 'vim', isAgent: true },
         ];
+      }
+    }
+
+    // Dynamic Default Pane Focus selection based on actual configured panes
+    const focusChoices = configuredLayout.map((p) => {
+      const typeHint = p.isAgent
+        ? 'AI Agent'
+        : (p.cmd ? `command: "${p.cmd}"` : 'clean shell');
+      return {
+        label: `Pane "${p.title}" (id: ${p.id}) — [${typeHint}]`,
+        value: p.id,
+        hint: p.isAgent ? 'Instant focus on pair programming agent' : (p.id === 'vim' ? 'Focus code editor upon workspace boot' : `Focus pane "${p.title}"`),
+      };
+    });
+
+    const agentIndex = configuredLayout.findIndex((p) => p.isAgent);
+    const defaultFocusIndex = agentIndex >= 0 ? agentIndex : 0;
+
+    const focusChoice = await promptSelect({
+      message: 'Default pane to focus upon creation (defaultFocus):',
+      choices: focusChoices,
+      defaultIndex: defaultFocusIndex,
+    });
+
+    const finalFocus = focusChoice || (configuredLayout[0] ? configuredLayout[0].id : 'agy');
+
+    for (const pane of configuredLayout) {
+      if (pane.id === finalFocus) {
+        pane.focus = true;
+      } else {
+        delete pane.focus;
       }
     }
 
@@ -342,7 +381,7 @@ ${JSON.stringify(configObj, null, 2)}
       },
       workspace: {
         agent: agentChoice,
-        defaultFocus: 'agy',
+        defaultFocus: finalFocus,
         labelPrefix: '',
       },
       layout: configuredLayout,
