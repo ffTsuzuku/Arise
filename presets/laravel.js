@@ -98,12 +98,25 @@ if [ -d .githooks ]; then git config core.hooksPath .githooks; fi
 
     async onPreNuke(ctx) {
       const symlinkPath = ctx.config.scaffold && ctx.config.scaffold.symlink;
-      if (symlinkPath && fs.existsSync(symlinkPath)) {
+      if (symlinkPath) {
         try {
-          const lstat = fs.lstatSync(symlinkPath);
-          if (lstat.isSymbolicLink()) {
-            const currentTarget = fs.realpathSync(symlinkPath);
-            if (path.resolve(currentTarget) === path.resolve(ctx.worktreePath)) {
+          let isSymlink = false;
+          try {
+            const lstat = fs.lstatSync(symlinkPath);
+            isSymlink = lstat.isSymbolicLink();
+          } catch (e) {}
+
+          if (isSymlink) {
+            let currentTarget = null;
+            try {
+              currentTarget = fs.readlinkSync(symlinkPath);
+            } catch (e) {}
+
+            const resolvedCurrent = currentTarget
+              ? (path.isAbsolute(currentTarget) ? currentTarget : path.resolve(path.dirname(symlinkPath), currentTarget))
+              : null;
+
+            if (resolvedCurrent && path.resolve(resolvedCurrent) === path.resolve(ctx.worktreePath)) {
               console.log(`==> Unlinking active web symlink "${symlinkPath}" pointing to nuked worktree...`);
               fs.unlinkSync(symlinkPath);
             }
