@@ -114,8 +114,10 @@ export interface ExecutionContext {
   copyFile(src: string, dst: string): boolean;
   /** Copy file from repository root to worktree destination */
   copyFromRoot(relativeSrc: string, relativeDst?: string): boolean;
-  /** Safely create or replace a symlink */
-  setSymlink(symlinkPath: string, target?: string): boolean;
+  /** Safely create or replace a symlink, with interactive sudo fallback on permission error */
+  setSymlink(symlinkPath: string, target?: string): Promise<boolean>;
+  /** Safely remove a symlink, with sudo fallback on permission error */
+  removeSymlink(symlinkPath: string): Promise<boolean>;
 }
 
 export interface PresetHooks {

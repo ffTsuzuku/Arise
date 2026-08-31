@@ -50,27 +50,27 @@ test('Execution Context & Symlink Management', async (t) => {
     assert.equal(fs.readFileSync(targetFile, 'utf8'), 'APP_ENV=root\n');
   });
 
-  await t.test('creates symlink when destination does not exist yet', () => {
+  await t.test('creates symlink when destination does not exist yet', async () => {
     const symlinkPath = path.join(tmpDir, 'web', 'active-app');
-    const success = ctx.setSymlink(symlinkPath, worktreePath);
+    const success = await ctx.setSymlink(symlinkPath, worktreePath);
     assert.equal(success, true);
     assert.equal(fs.existsSync(symlinkPath), true);
     assert.equal(fs.lstatSync(symlinkPath).isSymbolicLink(), true);
     assert.equal(fs.realpathSync(symlinkPath), fs.realpathSync(worktreePath));
   });
 
-  await t.test('updates existing symlink to point to new worktree target', () => {
+  await t.test('updates existing symlink to point to new worktree target', async () => {
     const symlinkPath = path.join(tmpDir, 'web', 'active-app');
     const newWorktreePath = path.join(tmpDir, 'worktrees', 'feature-two');
     fs.mkdirSync(newWorktreePath, { recursive: true });
 
-    const success = ctx.setSymlink(symlinkPath, newWorktreePath);
+    const success = await ctx.setSymlink(symlinkPath, newWorktreePath);
     assert.equal(success, true);
     assert.equal(fs.lstatSync(symlinkPath).isSymbolicLink(), true);
     assert.equal(fs.realpathSync(symlinkPath), fs.realpathSync(newWorktreePath));
   });
 
-  await t.test('replaces dangling / broken symlink without error', () => {
+  await t.test('replaces dangling / broken symlink without error', async () => {
     const symlinkPath = path.join(tmpDir, 'web', 'dangling-link');
     const deadTarget = path.join(tmpDir, 'deleted-target');
     fs.symlinkSync(deadTarget, symlinkPath);
@@ -79,18 +79,18 @@ test('Execution Context & Symlink Management', async (t) => {
     assert.equal(fs.existsSync(symlinkPath), false);
     assert.equal(fs.lstatSync(symlinkPath).isSymbolicLink(), true);
 
-    const success = ctx.setSymlink(symlinkPath, worktreePath);
+    const success = await ctx.setSymlink(symlinkPath, worktreePath);
     assert.equal(success, true);
     assert.equal(fs.existsSync(symlinkPath), true);
     assert.equal(fs.realpathSync(symlinkPath), fs.realpathSync(worktreePath));
   });
 
-  await t.test('backs up directory or regular file if destination already exists and is not a symlink', () => {
+  await t.test('backs up directory or regular file if destination already exists and is not a symlink', async () => {
     const conflictPath = path.join(tmpDir, 'web', 'conflict-dir');
     fs.mkdirSync(conflictPath, { recursive: true });
     fs.writeFileSync(path.join(conflictPath, 'data.txt'), 'hello', 'utf8');
 
-    const success = ctx.setSymlink(conflictPath, worktreePath);
+    const success = await ctx.setSymlink(conflictPath, worktreePath);
     assert.equal(success, true);
     assert.equal(fs.lstatSync(conflictPath).isSymbolicLink(), true);
     assert.equal(fs.realpathSync(conflictPath), fs.realpathSync(worktreePath));
@@ -100,5 +100,15 @@ test('Execution Context & Symlink Management', async (t) => {
     const backupDir = webDirContents.find((name) => name.startsWith('conflict-dir_BAK_'));
     assert.ok(backupDir, 'Expected backup directory to exist');
     assert.equal(fs.existsSync(path.join(tmpDir, 'web', backupDir, 'data.txt')), true);
+  });
+
+  await t.test('removes symlink cleanly via removeSymlink', async () => {
+    const symlinkPath = path.join(tmpDir, 'web', 'removable-link');
+    await ctx.setSymlink(symlinkPath, worktreePath);
+    assert.equal(fs.existsSync(symlinkPath), true);
+
+    const removed = await ctx.removeSymlink(symlinkPath);
+    assert.equal(removed, true);
+    assert.equal(fs.existsSync(symlinkPath), false);
   });
 });

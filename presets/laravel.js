@@ -92,7 +92,7 @@ if [ -d .githooks ]; then git config core.hooksPath .githooks; fi
       // 3. Update Web Server Symlink if configured
       const symlinkPath = ctx.config.scaffold && ctx.config.scaffold.symlink;
       if (symlinkPath) {
-        ctx.setSymlink(symlinkPath, ctx.worktreePath);
+        await ctx.setSymlink(symlinkPath, ctx.worktreePath);
       }
     },
 
@@ -118,7 +118,7 @@ if [ -d .githooks ]; then git config core.hooksPath .githooks; fi
 
             if (resolvedCurrent && path.resolve(resolvedCurrent) === path.resolve(ctx.worktreePath)) {
               console.log(`==> Unlinking active web symlink "${symlinkPath}" pointing to nuked worktree...`);
-              fs.unlinkSync(symlinkPath);
+              await ctx.removeSymlink(symlinkPath);
             }
           }
         } catch (e) {}
