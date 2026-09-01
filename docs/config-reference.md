@@ -20,7 +20,7 @@
 ## Configuration Schema & Options
 
 ### `preset` (string)
-The preset to use (`'node'`, `'laravel'`, `'generic'`, etc.). When omitted, `arise` auto-detects the preset from file markers.
+The preset to use (`'node'`, `'laravel'`, `'generic'`, custom preset name, or relative/absolute file path such as `'./presets/custom.js'`). When omitted, `arise` auto-detects the preset from file markers and custom preset directories (`.arise/presets/` or `~/.config/arise/presets/`).
 
 ### `repo` (object)
 - **`bareRepo`** (`string | null`): Path to bare repository (e.g. `'/path/to/bare/repo.git'`).

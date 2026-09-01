@@ -60,9 +60,53 @@ module.exports = {
 
 ---
 
-## Preset Registration
+## Where Custom Presets Are Stored
 
-To make a preset available globally across all projects:
+Arise dynamically discovers and loads custom presets from project-level directories, user-level global configuration, or explicit file paths without needing to modify Arise source code:
+
+### 1. Project-Local Presets (`.arise/presets/`)
+Place custom preset files directly in your repository:
+```
+my-project/
+├── .arise/
+│   └── presets/
+│       ├── django.js
+│       └── fast-api.js
+├── .ariserc.json
+└── ...
+```
+* **Auto-Discovery**: Any `.js` or `.cjs` file in `.arise/presets/` or `.ariserc/presets/` is automatically discovered.
+* **Auto-Detection**: If `detect(cwd)` matches, the custom preset takes priority over built-in presets.
+* **Explicit Usage**: In `.ariserc.json`, set `"preset": "django"`, or run `arise --preset django`.
+
+### 2. User-Wide Global Presets (`~/.config/arise/presets/`)
+To share custom presets across all projects on your machine:
+```
+~/.config/arise/
+└── presets/
+    ├── python.js
+    ├── go.js
+    └── rails.js
+```
+* Custom presets saved here are available in all repositories and listed in `arise --init`.
+
+### 3. Direct File Paths or NPM Packages
+You can specify relative or absolute file paths, or installed npm preset packages:
+```json
+{
+  "preset": "./custom/my-preset.js"
+}
+```
+Or via CLI:
+```bash
+arise --branch feature/auth --preset ./custom/my-preset.js
+```
+
+---
+
+## Contributing Built-in Presets
+
+To add a new first-class preset directly into the Arise repository:
 
 1. Add your preset file to `presets/<name>.js`.
 2. Open `presets/index.js` and register it in `builtInPresets`:

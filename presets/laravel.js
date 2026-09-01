@@ -4,6 +4,7 @@ const git = require('../lib/git');
 
 module.exports = {
   name: 'laravel',
+  icon: '🐘',
 
   detect(cwd) {
     return fs.existsSync(path.join(cwd, 'artisan')) || fs.existsSync(path.join(cwd, 'composer.json'));

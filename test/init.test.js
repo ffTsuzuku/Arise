@@ -328,6 +328,47 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
 
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
+
+  await t.test('exports standalone custom preset module with custom icon and auto-detection', async () => {
+    const tempDir = createTempDir('arise-export-preset-');
+    try {
+      const exportPath = await ConfigInitWizard.handleExportPreset({
+        configObj: {
+          repo: { defaultBaseBranch: 'main', protectedBranches: ['main', 'master'] },
+          workspace: { agent: 'agy', defaultFocus: 'agy', labelPrefix: '[FAST] ' },
+        },
+        configuredLayout: [
+          { id: 'vim', title: 'editor', cmd: 'vim .', position: 'root' },
+          { id: 'server', title: 'fastapi server', cmd: 'uvicorn main:app --reload', split: 'right', from: 'vim' },
+        ],
+        finalPreset: 'fastapi',
+        envSource: '.env.example',
+        installCmd: 'pip install -r requirements.txt',
+        symlinkPath: null,
+        cwd: tempDir,
+        options: {
+          exportPreset: true,
+          presetName: 'fastapi',
+          exportScope: 'local',
+        },
+      });
+
+      assert.ok(exportPath);
+      assert.ok(fs.existsSync(exportPath));
+      assert.equal(path.basename(exportPath), 'fastapi.js');
+
+      // Load exported module
+      const exported = require(exportPath);
+      assert.equal(exported.name, 'fastapi');
+      assert.ok(exported.icon);
+      assert.equal(typeof exported.detect, 'function');
+      assert.equal(exported.layout.length, 2);
+      assert.equal(exported.layout[1].cmd, 'uvicorn main:app --reload');
+      assert.ok(typeof exported.hooks.onScaffold === 'function');
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
 });
 
 

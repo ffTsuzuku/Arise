@@ -132,8 +132,10 @@ export interface PresetHooks {
 }
 
 export interface Preset {
-  /** Unique name of the preset ('node', 'laravel', 'generic') */
+  /** Unique name of the preset ('node', 'laravel', 'generic', or custom name) */
   name: string;
+  /** Display icon or emoji (e.g. '🐍', '⚡', '🦀', '✨', '🐘', '📦') */
+  icon?: string;
   /** Detection rule to determine if this preset applies to a directory */
   detect?(cwd: string): boolean;
   /** Repository defaults */
@@ -146,6 +148,17 @@ export interface Preset {
   scaffold?: ScaffoldConfig;
   /** Lifecycle hook implementations */
   hooks?: PresetHooks;
+  /** Whether this is a user or project-defined custom preset */
+  isCustom?: boolean;
+  /** Absolute file path from which this preset was loaded (for custom presets) */
+  sourcePath?: string;
+}
+
+export interface PresetListItem {
+  name: string;
+  label: string;
+  isCustom: boolean;
+  preset: Preset;
 }
 
 export interface WorktreeConfig {

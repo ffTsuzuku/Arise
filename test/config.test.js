@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { getPreset, detectPreset } = require('../presets');
+const { getPreset, detectPreset, listPresets, loadCustomPresets } = require('../presets');
 const { resolveConfiguration } = require('../lib/config');
 
 test('Preset Registry & Resolution', async (t) => {
@@ -182,5 +182,83 @@ test('Preset Registry & Resolution', async (t) => {
       fs.rmSync(testDir, { recursive: true, force: true });
     }
   });
+
+  await t.test('discovers and loads custom preset from .arise/presets/ directory', () => {
+    const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arise-custom-preset-'));
+    try {
+      const presetDir = path.join(testDir, '.arise', 'presets');
+      fs.mkdirSync(presetDir, { recursive: true });
+
+      const customPresetCode = `
+module.exports = {
+  name: 'django',
+  detect: (cwd) => require('fs').existsSync(require('path').join(cwd, 'manage.py')),
+  repo: { defaultBaseBranch: 'main' },
+  workspace: { defaultFocus: 'agent' },
+  layout: [
+    { id: 'vim', title: 'editor', cmd: 'vim .', position: 'root' },
+    { id: 'server', title: 'django server', cmd: 'python manage.py runserver', split: 'right', from: 'vim' },
+  ],
+};
+`;
+      fs.writeFileSync(path.join(presetDir, 'django.js'), customPresetCode, 'utf8');
+
+      // 1. getPreset by name from searchDirs
+      const preset = getPreset('django', [testDir]);
+      assert.ok(preset);
+      assert.equal(preset.name, 'django');
+      assert.equal(preset.isCustom, true);
+      assert.equal(preset.layout.length, 2);
+
+      // 2. listPresets includes custom preset
+      const list = listPresets([testDir]);
+      assert.ok(list.some((p) => p.name === 'django' && p.isCustom));
+
+      // 3. detectPreset matches when marker file is present
+      fs.writeFileSync(path.join(testDir, 'manage.py'), '#!/usr/bin/env python');
+      const detected = detectPreset(testDir, [testDir]);
+      assert.ok(detected);
+      assert.equal(detected.name, 'django');
+      assert.equal(detected.isCustom, true);
+    } finally {
+      fs.rmSync(testDir, { recursive: true, force: true });
+    }
+  });
+
+  await t.test('loads custom preset from explicit relative or absolute file path', () => {
+    const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arise-filepath-preset-'));
+    try {
+      const customPath = path.join(testDir, 'my-preset.js');
+      const customCode = `
+module.exports = {
+  name: 'custom-tooling',
+  layout: [
+    { id: 'main', title: 'workspace', cmd: 'bash', position: 'root' },
+  ],
+};
+`;
+      fs.writeFileSync(customPath, customCode, 'utf8');
+
+      // Direct relative/absolute path
+      const loaded = getPreset(customPath);
+      assert.ok(loaded);
+      assert.equal(loaded.name, 'custom-tooling');
+      assert.equal(loaded.isCustom, true);
+      assert.equal(loaded.layout.length, 1);
+
+      // Resolve configuration using file path preset
+      fs.writeFileSync(
+        path.join(testDir, '.ariserc.json'),
+        JSON.stringify({ preset: customPath }),
+        'utf8'
+      );
+      const config = resolveConfiguration({}, testDir);
+      assert.equal(config.preset.name, 'custom-tooling');
+      assert.equal(config.layout[0].id, 'main');
+    } finally {
+      fs.rmSync(testDir, { recursive: true, force: true });
+    }
+  });
 });
+
 

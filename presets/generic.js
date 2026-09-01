@@ -3,6 +3,7 @@ const path = require('path');
 
 module.exports = {
   name: 'generic',
+  icon: '📦',
 
   detect(cwd) {
     return true; // Fallback preset
