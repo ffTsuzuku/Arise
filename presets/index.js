@@ -39,7 +39,6 @@ function getPresetSearchDirectories(searchDirs = []) {
   // 2. User home config directories
   const homeDir = os.homedir();
   addDir(path.join(homeDir, '.config', 'arise', 'presets'));
-  addDir(path.join(homeDir, '.config', 'herdr-worktree', 'presets'));
   addDir(path.join(homeDir, '.arise', 'presets'));
 
   return dirs;

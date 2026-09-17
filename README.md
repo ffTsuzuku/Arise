@@ -54,25 +54,28 @@ Interactive options include:
 - 🌿 **Git Worktree Operations** (Create new worktree, Switch worktree, List worktrees, Nuke worktree)
 - ⚙️ **Initialize / Configure Arise** (interactive setup wizard)
 
-### 3. Git Worktree Workflows (Worktree Plugin)
+### 3. Git Worktree Subcommands (Worktree Plugin)
 ```bash
-# Create a new git worktree & boot into tmux or herdr session:
+# Modern subcommands:
+arise worktree create feature/login
+arise worktree list
+arise worktree switch feature/login
+arise worktree nuke feature/login
+
+# Or via classic flags:
 arise --branch feature/login
-
-# Explicitly choose multiplexer, preset, and AI agent:
-arise --branch feature/login --mux tmux --preset laravel --agent claude
-
-# Safe worktree nuke / teardown:
 arise --nuke feature-login
 ```
 
 ### 4. Manage Sessions
 ```bash
-# List active sessions in current multiplexer:
-arise --sessions
+# List active sessions:
+arise sessions
+# (or arise --sessions)
 
 # Close / kill an active session:
-arise --kill my-session
+arise kill my-session
+# (or arise --kill my-session)
 ```
 
 ### 5. Install AI Agent Skill (Antigravity `agy`, Claude Code, etc.)
@@ -135,9 +138,7 @@ arise/
 │   │   ├── worktree.js    # Built-in Git worktree lifecycle plugin
 │   │   └── index.js       # Plugin resolver
 │   └── lifecycle/
-│       ├── session.js     # Core session bootstrap & close engine
-│       ├── create.js      # Backwards-compatible create adapter
-│       └── nuke.js        # Backwards-compatible nuke adapter
+│       └── session.js     # Core session bootstrap & close engine
 └── presets/
     ├── index.js           # Preset registry & auto-detection
     ├── node.js            # Node / JS project preset

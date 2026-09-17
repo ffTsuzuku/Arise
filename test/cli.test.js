@@ -129,6 +129,33 @@ test('CLI Argument Parsing', async (t) => {
     const flagsList = parseArgs(['--sessions']);
     assert.equal(flagsList.listSessions, true);
   });
+
+  await t.test('parses worktree subcommands and subargs correctly', () => {
+    const flagsCreate = parseArgs(['worktree', 'create', 'feature/login', '--base', 'develop']);
+    assert.equal(flagsCreate.subcommand, 'worktree');
+    assert.deepEqual(flagsCreate.subargs, ['create', 'feature/login', '--base', 'develop']);
+
+    const flagsList = parseArgs(['worktree', 'list']);
+    assert.equal(flagsList.subcommand, 'worktree');
+    assert.deepEqual(flagsList.subargs, ['list']);
+
+    const flagsSwitch = parseArgs(['worktree', 'switch', 'feature/login']);
+    assert.equal(flagsSwitch.subcommand, 'worktree');
+    assert.deepEqual(flagsSwitch.subargs, ['switch', 'feature/login']);
+
+    const flagsNuke = parseArgs(['worktree', 'nuke', 'feature/login', '--force']);
+    assert.equal(flagsNuke.subcommand, 'worktree');
+    assert.deepEqual(flagsNuke.subargs, ['nuke', 'feature/login', '--force']);
+  });
+
+  await t.test('parses sessions and kill subcommands as CLI flags correctly', () => {
+    const flagsSessions = parseArgs(['sessions']);
+    assert.equal(flagsSessions.listSessions, true);
+
+    const flagsKill = parseArgs(['kill', 'billing_api']);
+    assert.equal(flagsKill.isKill, true);
+    assert.equal(flagsKill.cleanupTarget, 'billing_api');
+  });
 });
 
 

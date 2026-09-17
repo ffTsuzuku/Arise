@@ -12,7 +12,7 @@
 - **Multiplexer Agnostic**: The engine is completely abstracted from underlying multiplexers via `lib/drivers/` (`tmux` and `herdr`).
 - **Pluggable Ecosystem**: Features such as Git worktree management are implemented as pluggable lifecycle extensions (`lib/plugins/`) rather than hardcoded into the core engine.
 - **Pluggable Presets**: Language- and framework-specific behavior (Node.js, Laravel/PHP, etc.) is isolated in `presets/`.
-- **User Configurations**: Project-specific paths, preferred multiplexer, plugins, and custom layouts are configured via `.ariserc.json` / `.worktreerc.json` / `arise.config.js`.
+- **User Configurations**: Project-specific paths, preferred multiplexer, plugins, and custom layouts are configured via `.ariserc.json` / `arise.config.js`.
 
 ---
 
@@ -30,7 +30,7 @@ arise/
 ├── lib/
 │   ├── cli.js                 # CLI argument parsing, flags, and help text
 │   ├── interactive.js         # Interactive TUI prompt and zero-argument menu handler
-│   ├── config.js              # Config file discovery (.ariserc / .worktreerc) and preset merging
+│   ├── config.js              # Config file discovery (.ariserc / arise.config.js) and preset merging
 │   ├── context.js             # Execution context helper passed into lifecycle hooks
 │   ├── git.js                 # Git operations (worktrees, branches, remote checks, prune)
 │   ├── layout.js              # Declarative terminal layout renderer
@@ -45,9 +45,7 @@ arise/
 │   │   ├── worktree.js        # Built-in Git worktree lifecycle plugin
 │   │   └── index.js           # Plugin resolver
 │   └── lifecycle/
-│       ├── session.js         # Core session bootstrap & close engine
-│       ├── create.js          # Backwards-compatible worktree create pipeline
-│       └── nuke.js            # Backwards-compatible worktree nuke pipeline
+│       └── session.js         # Core session bootstrap & close engine
 ├── presets/
 │   ├── index.js               # Preset registry & auto-detection engine
 │   ├── node.js                # Generic Node.js preset (npm, 'npm server' pane)
@@ -66,7 +64,7 @@ arise/
 ## 3. The Lifecycle Pipeline
 
 ```
-[1. Parse CLI Args] ──► [2. Load .ariserc / .worktreerc & Merge Preset]
+[1. Parse CLI Args] ──► [2. Load .ariserc & Merge Preset]
                                     │
                                     ▼
                      [3. PluginManager.hookResolveTarget]

@@ -93,4 +93,47 @@ test('Plugin System & Lifecycle Hooks', async (t) => {
 
     assert.equal(manager.hasPlugin('worktree'), true);
   });
+
+  await t.test('hookHandleCommand routes subcommand to plugin and halts pipeline', async () => {
+    const manager = new PluginManager();
+    let handledSubargs = null;
+    manager.register({
+      name: 'worktree',
+      async handleCommand(cmd, subargs, ctx) {
+        if (cmd === 'worktree') {
+          handledSubargs = subargs;
+          return true;
+        }
+        return false;
+      },
+    });
+
+    const handled = await manager.hookHandleCommand('worktree', ['list'], { test: true });
+    assert.equal(handled, true);
+    assert.deepEqual(handledSubargs, ['list']);
+
+    const unhandled = await manager.hookHandleCommand('unknown', [], {});
+    assert.equal(unhandled, false);
+  });
+
+  await t.test('getMenuActions aggregates menu actions from all registered plugins', () => {
+    const manager = new PluginManager();
+    manager.register({
+      name: 'p1',
+      menuActions() {
+        return [{ key: '1', label: 'Action 1' }];
+      },
+    });
+    manager.register({
+      name: 'p2',
+      menuActions() {
+        return [{ key: '2', label: 'Action 2' }];
+      },
+    });
+
+    const actions = manager.getMenuActions({});
+    assert.equal(actions.length, 2);
+    assert.equal(actions[0].key, '1');
+    assert.equal(actions[1].key, '2');
+  });
 });

@@ -1,4 +1,4 @@
-# Configuration File Reference (`.ariserc.json` / `arise.config.js` / `.worktreerc.json`)
+# Configuration File Reference (`.ariserc.json` / `arise.config.js`)
 
 `arise` allows project-level and user-level configuration files to override multiplexer driver, plugins, preset defaults, topology paths, and terminal layouts.
 
@@ -8,12 +8,9 @@
 
 1. `./.ariserc.js` or `./arise.config.js` (Current Directory)
 2. `./.ariserc.json` or `./.ariserc` (Current Directory)
-3. `./.worktreerc.js` or `./worktree.config.js` (Current Directory fallback)
-4. `./.worktreerc.json` or `./.worktreerc` (Current Directory fallback)
-5. `<repoRoot>/.ariserc.json` / `<repoRoot>/.worktreerc.json` (Repository Root)
-6. `~/.config/arise/config.js` (User Global Config)
-7. `~/.config/herdr-worktree/config.js` (User Global Config fallback)
-8. `~/.ariserc.json` / `~/.worktreerc.json` (User Home Directory)
+3. `<repoRoot>/.ariserc.json` (Repository Root)
+4. `~/.config/arise/config.js` (User Global Config)
+5. `~/.ariserc.json` (User Home Directory)
 
 ---
 

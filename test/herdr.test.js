@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const herdr = require('../lib/herdr');
+const herdr = require('../lib/drivers/herdr');
 
 test('Herdr Installation & Utility Functions', async (t) => {
   await t.test('isHerdrInstalled returns a boolean', () => {

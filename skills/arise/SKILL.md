@@ -1,6 +1,6 @@
 ---
 name: arise
-description: User guide, CLI reference, and command executor for the `arise` utility (Universal terminal workspace bootstrapper across tmux and Herdr with Git worktree plugin). Activate this skill whenever the user asks questions about how to use arise, how session or worktree orchestration works, how to configure `.ariserc.json` or `.worktreerc.json`, or asks the assistant to boot, switch to, or manage sessions and Git worktrees on their behalf.
+description: User guide, CLI reference, and command executor for the `arise` utility (Universal terminal workspace bootstrapper across tmux and Herdr with Git worktree plugin). Activate this skill whenever the user asks questions about how to use arise, how session or worktree orchestration works, how to configure `.ariserc.json` or `arise.config.js`, or asks the assistant to boot, switch to, or manage sessions and Git worktrees on their behalf.
 ---
 
 # Arise Operator & Assistant Guide
@@ -30,48 +30,37 @@ arise /path/to/project --name my-session
 arise
 ```
 
-### Git Worktree Workflows (Worktree Plugin)
+### Git Worktree Subcommands (Worktree Plugin)
 ```bash
-# Create or open a worktree for a branch (auto-detects preset, boots session)
-arise --branch <branch-name>
+# Subcommands:
+arise worktree create <branch> [--base <source>]
+arise worktree list
+arise worktree switch <branch>
+arise worktree nuke [<branch-or-dir>] [--force]
 
-# Create worktree based off a specific base branch (e.g. develop, prod, main)
-arise --branch <branch-name> --base <base-branch>
-
-# Custom directory name or workspace name
-arise -b <branch-name> -d <dir-name> -w <workspace-name>
-
-# Explicit preset or pane focus ('agy', 'claude', 'vim', 'logs', 'server', 'shell')
-arise -b <branch-name> --preset laravel --focus agy
+# Or via classic flags:
+arise --branch <branch-name> [--base <base-branch>]
+arise --nuke [<branch-or-dir>] [--force]
 ```
 
 ### Session Management & Nuking
 ```bash
 # List active sessions
-arise --sessions
+arise sessions
+# (or arise --sessions)
 
 # Close / kill active session
-arise --kill <session-name>
+arise kill <session-name>
+# (or arise --kill <session-name>)
 
 # Nuke active worktree (when run inside a worktree directory)
-arise --nuke
-
-# Nuke specific worktree by branch or directory name
-arise --nuke <branch-or-dir>
-
-# Remove directory only (keep local and remote git branches)
-arise --nuke <target> --dir-only
-
-# Delete local branch and directory, but keep remote branch on origin
-arise --nuke <target> --keep-remote
-
-# Force removal even if uncommitted changes exist
-arise --nuke <target> --force
+arise worktree nuke
+# (or arise --nuke)
 ```
 
 ---
 
-## 2. Configuration (`.ariserc.json` / `arise.config.js` / `.worktreerc.json`)
+## 2. Configuration (`.ariserc.json` / `arise.config.js`)
 
 ```json
 {
@@ -97,7 +86,7 @@ arise --nuke <target> --force
 
 ### When the User Asks Questions:
 1. Consult the CLI options and configuration schema above.
-2. If working inside a repository with local documentation or `.ariserc.json` / `.worktreerc.json`, inspect those files.
+2. If working inside a repository with local documentation or `.ariserc.json` / `arise.config.js`, inspect those files.
 3. Provide clear explanations with executable CLI examples and config snippets.
 
 ### When the User Asks You to Perform an Action:

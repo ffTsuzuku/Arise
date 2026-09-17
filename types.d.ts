@@ -22,6 +22,8 @@ export interface CliFlags {
   multiplexer: string | null;
   sessionName: string | null;
   targetDir: string | null;
+  subcommand: string | null;
+  subargs: string[];
   isKill: boolean;
   listSessions: boolean;
   noAttach: boolean;

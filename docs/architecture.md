@@ -52,18 +52,19 @@
 - Handles flags, aliases, short forms (`-m`, `-b`, `-k`), and positional directory or branch fallbacks.
 
 ### 2. Configuration & Preset Loader (`lib/config.js`)
-- Recursively searches parent directories and home configs for `.ariserc.json`, `arise.config.js`, `.worktreerc.json`, `.worktreerc.js`, or `worktree.config.js`.
+- Recursively searches search directories and home configs for `.ariserc.js`, `arise.config.js`, `.ariserc.json`, or `.ariserc`.
 - Merges project presets (`node`, `laravel`, `generic`, or custom).
 - Resolves preferred multiplexer (`tmux`, `herdr`, or `auto`) and loaded plugins.
 
 ### 3. Plugin Subsystem (`lib/plugins/`)
 - **PluginManager (`lib/plugins/manager.js`)**: Executes lifecycle hooks:
+  - `handleCommand(command, subargs, context)`: Intercepts and executes CLI subcommands (e.g. `arise worktree ...`).
   - `resolveTarget(context)`: Allows plugins to redirect session working directories (e.g. creating/locating Git worktrees).
   - `onBeforeSession(context)`: Pre-session scaffolding, environment copying, symlink generation.
   - `onAfterSession(context)`: Post-session initialization.
   - `onTeardown(context)`: Custom teardown and cleanup logic.
   - `menuActions(context)`: Injects custom actions into the interactive TUI menu.
-- **Git Worktree Plugin (`lib/plugins/worktree.js`)**: Encapsulates all Git worktree topology, branch resolution, bare repository support, and safe `--nuke` teardown with protected branch safeguards.
+- **Git Worktree Plugin (`lib/plugins/worktree.js`)**: Encapsulates all Git worktree topology, subcommands (`arise worktree <create|list|switch|nuke>`), branch resolution, bare repository support, and safe teardown with uncommitted change warnings and protected branch safeguards.
 
 ### 4. Terminal Multiplexer Drivers (`lib/drivers/`)
 - Unified interface abstracting multiplexer-specific commands:

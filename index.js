@@ -2,9 +2,8 @@ const pkg = require('./package.json');
 const { parseArgs, showUsage } = require('./lib/cli');
 const { resolveConfiguration } = require('./lib/config');
 const { executeSessionCreate, executeSessionClose } = require('./lib/lifecycle/session');
-const { executeCreate } = require('./lib/lifecycle/create');
-const { executeNuke } = require('./lib/lifecycle/nuke');
 const { resolveDriver } = require('./lib/drivers');
+const { initPluginManager } = require('./lib/plugins');
 const logger = require('./lib/logger');
 
 async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
@@ -43,16 +42,30 @@ async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
     }
 
     const config = resolveConfiguration(flags, cwd);
+    const driver = resolveDriver(config.multiplexer, flags);
+    const pluginManager = initPluginManager({ flags, config, cwd });
+
     logger.debug(`Loaded configuration for cwd="${cwd}":`, {
-      multiplexer: config.multiplexer,
+      multiplexer: driver.name,
       configFile: config.configFile,
       preset: config.preset?.name,
       layoutCount: config.layout?.length,
       panes: config.layout?.map((p) => ({ id: p.id, title: p.title, from: p.from, split: p.split })),
     });
 
+    // Subcommand dispatch (e.g. arise worktree create|list|switch|nuke)
+    if (flags.subcommand) {
+      const handled = await pluginManager.hookHandleCommand(flags.subcommand, flags.subargs, {
+        flags,
+        config,
+        cwd,
+        driver,
+        pluginManager,
+      });
+      if (handled) return;
+    }
+
     if (flags.listSessions) {
-      const driver = resolveDriver(config.multiplexer, flags);
       const sessions = driver.listSessions();
       console.log(`\nActive ${driver.name} sessions (${sessions.length}):`);
       if (!sessions.length) {
@@ -68,12 +81,12 @@ async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
     }
 
     if (flags.isCleanup || flags.isKill) {
-      await executeSessionClose({ flags, config, cwd });
+      await executeSessionClose({ flags, config, cwd, pluginManager, driver });
       return;
     }
 
     // Interactive CLI / TUI Mode (arise with zero args or --interactive flag)
-    const isZeroArgs = flags.rawArgs.length === 0 && !flags.branch && !flags.targetDir;
+    const isZeroArgs = flags.rawArgs.length === 0 && !flags.branch && !flags.targetDir && !flags.subcommand;
     if (flags.interactive || isZeroArgs) {
       if (process.stdin.isTTY || flags.interactive) {
         const { startInteractiveMenu } = require('./lib/interactive');
@@ -82,7 +95,7 @@ async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
       }
     }
 
-    await executeSessionCreate({ flags, config, cwd });
+    await executeSessionCreate({ flags, config, cwd, pluginManager, driver });
   } catch (err) {
     logger.error(`Execution failed: ${err.message}`, err);
     process.exit(1);
@@ -91,8 +104,6 @@ async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
 
 module.exports = {
   run,
-  executeCreate,
-  executeNuke,
   executeSessionCreate,
   executeSessionClose,
 };
