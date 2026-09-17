@@ -282,6 +282,28 @@ module.exports = {
       fs.rmSync(testDir, { recursive: true, force: true });
     }
   });
+
+  await t.test('safely discards non-existent or foreign bareRepo and worktreesBase paths', () => {
+    const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arise-ghost-paths-'));
+    try {
+      fs.writeFileSync(
+        path.join(testDir, '.ariserc.json'),
+        JSON.stringify({
+          repo: {
+            bareRepo: '/Users/nonexistent/path/.bare',
+            worktreesBase: '/Users/nonexistent/worktrees',
+          },
+        }),
+        'utf8'
+      );
+
+      const resolved = resolveConfiguration({}, testDir);
+      assert.equal(resolved.repo.bareRepo, null);
+      assert.equal(resolved.repo.worktreesBase, null);
+    } finally {
+      fs.rmSync(testDir, { recursive: true, force: true });
+    }
+  });
 });
 
 
