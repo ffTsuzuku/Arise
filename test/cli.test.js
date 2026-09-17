@@ -104,6 +104,31 @@ test('CLI Argument Parsing', async (t) => {
     assert.equal(flagsVerboseLong.verbose, true);
     assert.equal(flagsVerboseLong.debug, true);
   });
+
+  await t.test('parses multiplexer flags correctly', () => {
+    const flagsLong = parseArgs(['--mux', 'tmux']);
+    assert.equal(flagsLong.multiplexer, 'tmux');
+
+    const flagsShort = parseArgs(['-m', 'herdr']);
+    assert.equal(flagsShort.multiplexer, 'herdr');
+
+    const flagsEqual = parseArgs(['--multiplexer=tmux']);
+    assert.equal(flagsEqual.multiplexer, 'tmux');
+  });
+
+  await t.test('parses session, dir, kill, and sessions flags correctly', () => {
+    const flagsSession = parseArgs(['--session', 'billing_api', '--dir', '/tmp/billing', '--no-attach']);
+    assert.equal(flagsSession.sessionName, 'billing_api');
+    assert.equal(flagsSession.targetDir, '/tmp/billing');
+    assert.equal(flagsSession.noAttach, true);
+
+    const flagsKill = parseArgs(['--kill', 'billing_api']);
+    assert.equal(flagsKill.isKill, true);
+    assert.equal(flagsKill.cleanupTarget, 'billing_api');
+
+    const flagsList = parseArgs(['--sessions']);
+    assert.equal(flagsList.listSessions, true);
+  });
 });
 
 

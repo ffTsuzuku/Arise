@@ -1,6 +1,6 @@
 # System Architecture & Subsystem Design
 
-`arise` is structured as a decoupled, layered command-line engine that coordinates Git worktrees and Herdr terminal sessions across disparate technology stacks.
+`arise` is structured as a decoupled, layered command-line engine that bootstraps terminal sessions across **tmux** and **Herdr**, orchestrating declarative multi-pane layouts, project presets, and AI agent panes with a pluggable ecosystem.
 
 ---
 
@@ -18,19 +18,29 @@
 │              (lib/config.js & presets/index.js)             │
 └──────────────────────────────┬──────────────────────────────┘
                                │
-       ┌───────────────────────┴───────────────────────┐
-       ▼                                               ▼
-┌──────────────────────────────┐        ┌──────────────────────────────┐
-│       Creation Pipeline      │        │        Nuke Pipeline         │
-│  (lib/lifecycle/create.js)   │        │   (lib/lifecycle/nuke.js)    │
-└──────────────┬───────────────┘        └──────────────┬───────────────┘
-               │                                       │
-               ├───────────────────┬───────────────────┤
-               ▼                   ▼                   ▼
-┌────────────────────────┐┌─────────────────┐┌────────────────────────┐
-│     Git Subsystem      ││ Herdr Subsystem ││    Layout Subsystem    │
-│      (lib/git.js)      ││ (lib/herdr.js)  ││    (lib/layout.js)     │
-└────────────────────────┘└─────────────────┘└────────────────────────┘
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 Plugin Lifecycle Manager                    │
+│                     (lib/plugins/)                          │
+│     ┌─────────────────────────────────────────────────┐     │
+│     │ Built-in: Git Worktree Plugin (lib/plugins/wt) │     │
+│     │ Custom User Plugins (arise.config.js)           │     │
+│     └─────────────────────────────────────────────────┘     │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│             Core Session Orchestrator Engine                │
+│                 (lib/lifecycle/session.js)                  │
+└──────────────┬───────────────────────────────┬──────────────┘
+               │                               │
+               ▼                               ▼
+┌──────────────────────────────┐┌──────────────────────────────┐
+│  Multiplexer Driver Subsystem││    Layout Subsystem          │
+│       (lib/drivers/)         ││     (lib/layout.js)          │
+│  ├── tmux Driver (tmux.js)   ││  ├── Declarative Splitting   │
+│  └── Herdr Driver (herdr.js) ││  └── AI Agent Focus Engine   │
+└──────────────────────────────┘└──────────────────────────────┘
 ```
 
 ---
@@ -39,24 +49,31 @@
 
 ### 1. CLI & Argument Parser (`lib/cli.js`)
 - Pure parser transforming raw command-line arguments (`process.argv`) into a structured `CliFlags` object.
-- Handles flags, aliases, short forms, and positional fallback.
+- Handles flags, aliases, short forms (`-m`, `-b`, `-k`), and positional directory or branch fallbacks.
 
 ### 2. Configuration & Preset Loader (`lib/config.js`)
 - Recursively searches parent directories and home configs for `.ariserc.json`, `arise.config.js`, `.worktreerc.json`, `.worktreerc.js`, or `worktree.config.js`.
-- Discovers active preset through `--preset` flag, config file, or directory auto-detection heuristics.
-- Deep-merges user config over preset defaults.
+- Merges project presets (`node`, `laravel`, `generic`, or custom).
+- Resolves preferred multiplexer (`tmux`, `herdr`, or `auto`) and loaded plugins.
 
-### 3. Git Subsystem (`lib/git.js`)
-- Manages standard working tree topologies as well as bare git repository topologies (`--git-dir`).
-- Handles porcelain worktree parsing, local/remote branch verification, safe worktree removal, branch tracking, and worktree pruning.
+### 3. Plugin Subsystem (`lib/plugins/`)
+- **PluginManager (`lib/plugins/manager.js`)**: Executes lifecycle hooks:
+  - `resolveTarget(context)`: Allows plugins to redirect session working directories (e.g. creating/locating Git worktrees).
+  - `onBeforeSession(context)`: Pre-session scaffolding, environment copying, symlink generation.
+  - `onAfterSession(context)`: Post-session initialization.
+  - `onTeardown(context)`: Custom teardown and cleanup logic.
+  - `menuActions(context)`: Injects custom actions into the interactive TUI menu.
+- **Git Worktree Plugin (`lib/plugins/worktree.js`)**: Encapsulates all Git worktree topology, branch resolution, bare repository support, and safe `--nuke` teardown with protected branch safeguards.
 
-### 4. Herdr Subsystem (`lib/herdr.js`)
-- Interfaces with the `herdr` CLI over IPC / CLI commands (`herdr workspace create`, `herdr workspace close`, `herdr pane split`, `herdr pane rename`, `herdr pane send-text`).
-- Manages session lifecycle (`attachOrSwitchSession`).
+### 4. Terminal Multiplexer Drivers (`lib/drivers/`)
+- Unified interface abstracting multiplexer-specific commands:
+  - **`tmux` Driver (`lib/drivers/tmux.js`)**: Manages detached sessions (`tmux new-session`), window splits (`tmux split-window -h/-v`), command dispatching (`tmux send-keys`), pane focus (`tmux select-pane`), and session switching (`tmux switch-client` / `attach-session`).
+  - **`herdr` Driver (`lib/drivers/herdr.js`)**: Manages workspaces (`herdr workspace create/close`) and pane splits (`herdr pane split/send-text`).
+- **Resolver (`lib/drivers/index.js`)**: Selects driver according to CLI flags (`--mux`), configuration, active environment (`$TMUX`, `$HERDR_ENV`), and system availability.
 
 ### 5. Declarative Layout Renderer (`lib/layout.js`)
-- Converts declarative pane arrays into tree-based Herdr pane split calls.
-- Maps parent pane IDs, sets pane titles, starts pane processes, and resolves focus targets.
+- Converts declarative pane arrays into tree-based splits executed on the active driver.
+- Maps parent pane IDs, sets pane titles, starts pane startup commands, and resolves focus targets.
 
 ### 6. Execution Context (`lib/context.js`)
 - Wraps child processes and file manipulation into safe, logged helper methods exposed to lifecycle hooks (`ctx.exec`, `ctx.spawn`, `ctx.copyFile`, `ctx.setSymlink`).

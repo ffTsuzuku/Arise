@@ -4,7 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "Arise - Unified workplace-agnostic Git worktree and Herdr workspace orchestrator with pluggable project presets",
+  "description": "Arise - Universal terminal workspace bootstrapper supporting tmux and Herdr with declarative layouts, AI agent panes, and pluggable presets",
   "main": "index.js",
   "bin": {
     "arise": "bin/cli.js",
@@ -29,12 +29,14 @@
     "test": "node --test test/*.test.js"
   },
   "keywords": [
+    "tmux",
+    "herdr",
+    "terminal",
+    "workspace",
+    "session",
     "git",
     "worktree",
-    "herdr",
-    "workspace",
-    "laravel",
-    "node",
+    "declarative-layout",
     "cli"
   ],
   "author": "",

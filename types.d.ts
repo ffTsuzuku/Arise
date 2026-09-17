@@ -2,8 +2,10 @@
  * Arise - Type Definitions
  * 
  * Provides strict structural contracts for presets, configuration,
- * declarative layouts, execution context, and lifecycle hooks.
+ * declarative layouts, execution context, multiplexer drivers, plugins, and lifecycle hooks.
  */
+
+export type MultiplexerType = 'tmux' | 'herdr' | 'auto';
 
 export interface CliFlags {
   interactive: boolean;
@@ -17,6 +19,12 @@ export interface CliFlags {
   yes: boolean;
   debug: boolean;
   verbose: boolean;
+  multiplexer: string | null;
+  sessionName: string | null;
+  targetDir: string | null;
+  isKill: boolean;
+  listSessions: boolean;
+  noAttach: boolean;
   branch: string | null;
   dirname: string | null;
   workspaceName: string | null;
@@ -38,7 +46,7 @@ export type SplitDirection = 'right' | 'down';
 export interface PaneDefinition {
   /** Unique ID for the pane within this layout */
   id: string;
-  /** Display title for the pane in Herdr */
+  /** Display title for the pane in multiplexer */
   title: string;
   /** Command to execute upon creation (or null for empty shell) */
   cmd: string | null;
@@ -54,6 +62,57 @@ export interface PaneDefinition {
   isAgent?: boolean;
 }
 
+export interface MultiplexerDriver {
+  name: 'tmux' | 'herdr';
+  isAvailable(): boolean;
+  ensureInstalled(options?: { yes?: boolean }): Promise<boolean>;
+  listSessions(): Array<{ id: string; name: string; label: string; cwd: string; active: boolean }>;
+  createSession(options: { name: string; cwd: string }): Promise<{ sessionId: string; rootPaneId: string; name: string }> | { sessionId: string; rootPaneId: string; name: string };
+  closeSession(nameOrId: string): boolean;
+  closeSessionsMatching(targets: string[]): void;
+  focusSession(sessionId: string): void;
+  splitPane(options: { paneId: string; direction?: SplitDirection; cwd?: string; focus?: boolean }): string;
+  renamePane(paneId: string, name: string): void;
+  runInPane(paneId: string, command: string): void;
+  focusPane(paneId: string): void;
+  attachOrSwitchSession(sessionName: string): void;
+}
+
+export interface PluginContext {
+  flags: CliFlags;
+  config: AriseConfig;
+  cwd: string;
+  driver?: MultiplexerDriver;
+  [key: string]: any;
+}
+
+export interface PluginTargetResult {
+  targetDir?: string;
+  sessionName?: string;
+  branch?: string | null;
+  repoRoot?: string | null;
+  isWorktree?: boolean;
+  worktreeExists?: boolean;
+  [key: string]: any;
+}
+
+export interface PluginMenuAction {
+  title: string;
+  description?: string;
+  value: string;
+  handler?: (context: PluginContext) => Promise<void> | void;
+}
+
+export interface Plugin {
+  name: string;
+  version?: string;
+  resolveTarget?(context: PluginContext): Promise<PluginTargetResult | null | void> | PluginTargetResult | null | void;
+  onBeforeSession?(context: ExecutionContext): Promise<void> | void;
+  onAfterSession?(context: { ctx: ExecutionContext; session: any; driver: MultiplexerDriver }): Promise<void> | void;
+  onTeardown?(context: PluginContext): Promise<boolean | void> | boolean | void;
+  menuActions?(context: { isGitRepo?: boolean; [key: string]: any }): PluginMenuAction[];
+}
+
 export interface RepoConfig {
   /** Path to bare repository (if using bare git topology) */
   bareRepo?: string | null;
@@ -66,7 +125,7 @@ export interface RepoConfig {
 }
 
 export interface WorkspaceConfig {
-  /** Prefix added to Herdr workspace labels (e.g. '[BE] ') */
+  /** Prefix added to workspace/session labels (e.g. '[BE] ') */
   labelPrefix?: string;
   /** CLI AI agent to run in the workspace pane ('agy', 'claude', 'aider', 'copilot', 'none', etc.) */
   agent?: string | { cmd: string; title?: string; [key: string]: any } | null;
@@ -85,14 +144,16 @@ export interface ScaffoldConfig {
 }
 
 export interface ExecutionContext {
-  /** Target worktree absolute directory */
+  /** Target worktree / workspace absolute directory */
   worktreePath: string;
+  targetDir: string;
+  sessionName: string;
   /** Repository root directory */
   repoRoot: string | null;
   /** Bare repo directory (if applicable) */
   bareRepo: string | null;
-  /** Target branch name */
-  branch: string;
+  /** Target branch name (if applicable) */
+  branch: string | null;
   /** Base source branch */
   source: string;
   /** Parsed CLI flags */
@@ -100,7 +161,11 @@ export interface ExecutionContext {
   /** Active preset */
   preset: Preset;
   /** Merged configuration */
-  config: WorktreeConfig;
+  config: AriseConfig;
+  /** Active multiplexer driver */
+  driver?: MultiplexerDriver;
+  isWorktree?: boolean;
+  worktreeExists?: boolean;
 
   log(msg: string): void;
   warn(msg: string): void;
@@ -161,7 +226,11 @@ export interface PresetListItem {
   preset: Preset;
 }
 
-export interface WorktreeConfig {
+export interface AriseConfig {
+  /** Terminal multiplexer driver to use ('tmux' | 'herdr' | 'auto') */
+  multiplexer?: MultiplexerType;
+  /** Loaded plugins or plugin names */
+  plugins?: Array<string | Plugin | ((...args: any[]) => Plugin)>;
   /** Name of preset or preset object */
   preset?: string | Preset;
   /** Repository configuration */
@@ -177,6 +246,9 @@ export interface WorktreeConfig {
   /** Path to config file that was loaded (if any) */
   configFile?: string | null;
 }
+
+/** Backward compatibility alias */
+export type WorktreeConfig = AriseConfig;
 
 export interface InitWizardOptions {
   quick?: boolean;
@@ -215,4 +287,3 @@ export interface PromptTextOptions {
 export declare class ConfigInitWizard {
   static run(options?: InitWizardOptions): Promise<string | null>;
 }
-

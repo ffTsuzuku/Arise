@@ -1,25 +1,38 @@
 ---
 name: arise
-description: User guide, CLI reference, and command executor for the `arise` utility (Git worktree and Herdr workspace orchestrator). Activate this skill whenever the user asks questions about how to use arise, how worktree orchestration works, how to configure `.ariserc.json` or `.worktreerc.json`, or asks the assistant to create, switch to, or nuke/clean up Git worktrees and Herdr workspaces on their behalf.
+description: User guide, CLI reference, and command executor for the `arise` utility (Universal terminal workspace bootstrapper across tmux and Herdr with Git worktree plugin). Activate this skill whenever the user asks questions about how to use arise, how session or worktree orchestration works, how to configure `.ariserc.json` or `.worktreerc.json`, or asks the assistant to boot, switch to, or manage sessions and Git worktrees on their behalf.
 ---
 
 # Arise Operator & Assistant Guide
 
-Use this skill to answer questions about `arise` and run worktree management commands on the user's behalf.
+Use this skill to answer questions about `arise` and run session or worktree management commands on the user's behalf.
 
 ---
 
 ## 1. CLI Quick Reference & Cheatsheet
 
+### Bootstrapping Sessions (Directory-First)
+```bash
+# Bootstrap session in current directory (auto-detects project preset, boots tmux or Herdr)
+arise
+
+# Specify preferred multiplexer ('tmux', 'herdr', or 'auto')
+arise --mux tmux
+arise --mux herdr
+
+# Bootstrap session for specific directory
+arise /path/to/project --name my-session
+```
+
 ### Interactive Mode
 ```bash
-# Launch interactive menu (create, switch/open, list, nuke)
+# Launch interactive menu (launch session, switch session, worktrees, config wizard)
 arise
 ```
 
-### Creating Worktrees
+### Git Worktree Workflows (Worktree Plugin)
 ```bash
-# Create or open a worktree for a branch (auto-detects preset, boots Herdr workspace)
+# Create or open a worktree for a branch (auto-detects preset, boots session)
 arise --branch <branch-name>
 
 # Create worktree based off a specific base branch (e.g. develop, prod, main)
@@ -28,12 +41,18 @@ arise --branch <branch-name> --base <base-branch>
 # Custom directory name or workspace name
 arise -b <branch-name> -d <dir-name> -w <workspace-name>
 
-# Explicit preset or pane focus ('agy', 'vim', 'logs', 'server', 'shell')
+# Explicit preset or pane focus ('agy', 'claude', 'vim', 'logs', 'server', 'shell')
 arise -b <branch-name> --preset laravel --focus agy
 ```
 
-### Nuking / Teardown
+### Session Management & Nuking
 ```bash
+# List active sessions
+arise --sessions
+
+# Close / kill active session
+arise --kill <session-name>
+
 # Nuke active worktree (when run inside a worktree directory)
 arise --nuke
 
@@ -52,21 +71,16 @@ arise --nuke <target> --force
 
 ---
 
-## 2. Configuration (`.ariserc.json` / `.worktreerc.json` / `arise.config.js`)
-
-Projects can configure custom topology, bare repos, and layouts via `.ariserc.json` or `.worktreerc.json` in the repository root or base directory:
+## 2. Configuration (`.ariserc.json` / `arise.config.js` / `.worktreerc.json`)
 
 ```json
 {
+  "multiplexer": "tmux",
+  "plugins": ["worktree"],
   "preset": "laravel",
-  "repo": {
-    "bareRepo": "/path/to/bare.git",
-    "worktreesBase": "/path/to/worktrees",
-    "defaultBaseBranch": "develop",
-    "protectedBranches": ["main", "master", "develop", "prod", "staging"]
-  },
   "workspace": {
     "labelPrefix": "[API] ",
+    "agent": "agy",
     "defaultFocus": "agy"
   },
   "scaffold": {
@@ -89,4 +103,4 @@ Projects can configure custom topology, bare repos, and layouts via `.ariserc.js
 ### When the User Asks You to Perform an Action:
 1. Formulate the appropriate `arise` CLI command.
 2. Execute the command on behalf of the user using the available command runner.
-3. Confirm the status of the created or nuked worktree and Herdr workspace.
+3. Confirm the status of the created or closed session and worktree.

@@ -4,6 +4,18 @@
   "description": "Configuration schema for Arise (.ariserc.json / .worktreerc.json)",
   "type": "object",
   "properties": {
+    "multiplexer": {
+      "type": "string",
+      "enum": ["tmux", "herdr", "auto"],
+      "description": "Terminal multiplexer to use for session orchestration ('tmux', 'herdr', or 'auto')"
+    },
+    "plugins": {
+      "type": "array",
+      "description": "Array of plugins to load (e.g. ['worktree'])",
+      "items": {
+        "type": ["string", "object"]
+      }
+    },
     "preset": {
       "type": "string",
       "description": "Preset name to use ('node', 'laravel', 'generic' or custom registered preset)"
@@ -34,11 +46,11 @@
     },
     "workspace": {
       "type": "object",
-      "description": "Herdr workspace naming, agent, and focus configuration",
+      "description": "Workspace/session naming, agent, and focus configuration",
       "properties": {
         "labelPrefix": {
           "type": "string",
-          "description": "Prefix added to Herdr workspace labels (e.g. '[BE] ')"
+          "description": "Prefix added to workspace/session labels (e.g. '[BE] ')"
         },
         "agent": {
           "type": ["string", "object", "null"],
@@ -50,7 +62,7 @@
             },
             "title": {
               "type": "string",
-              "description": "Display title for the agent pane in Herdr"
+              "description": "Display title for the agent pane in terminal multiplexer"
             }
           }
         },
@@ -74,7 +86,7 @@
           },
           "title": {
             "type": "string",
-            "description": "Title displayed on the Herdr pane"
+            "description": "Title displayed on the terminal pane"
           },
           "cmd": {
             "type": ["string", "null"],

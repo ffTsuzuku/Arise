@@ -1,17 +1,18 @@
 # Arise (`arise`)
 
-Unified, workplace-agnostic Git worktree and Herdr workspace orchestrator with pluggable project presets.
+Universal, multiplexer-agnostic terminal workspace bootstrapper supporting **tmux** and **Herdr**, with declarative layout orchestration, project presets, AI CLI agent panes, and a pluggable ecosystem.
 
 ---
 
 ## Features
 
-- **Interactive TUI Mode**: Run `arise` with zero arguments for an interactive menu (create worktrees, switch/open existing sessions, list worktrees with Herdr status, nuke/cleanup with multi-picker, and install AI agent skills).
-- **Unified Lifecycle**: Handles git worktree creation, branch resolution, Herdr workspace orchestration, 4-pane quadrant terminal setup, and safe teardown/nuke.
-- **Pluggable Presets**: Built-in support for **Node.js** (`npm`/`yarn`/`pnpm`), **Laravel/PHP** (`composer`, logs, permissions), and **Generic** projects.
-- **Zero-Config Auto-Detection**: Automatically detects project types based on directory markers (`package.json`, `composer.json`, `artisan`, etc.).
-- **Workplace & Repo Agnostic**: Supports standard Git repos and bare repositories (`--git-dir`). Custom environment paths and symlinks are completely configurable via `.ariserc.json` / `.worktreerc.json` / `arise.config.js`.
-- **Full Feature Parity**: Both Node and PHP projects get full `--nuke` / `--cleanup` suites with protected branch safety and Herdr workspace auto-closing.
+- **Multiplexer Agnostic**: Seamlessly boots sessions in either **tmux** or **Herdr** (auto-detected or configured via `--mux`).
+- **Instant Workspace Bootstrapping**: Run `arise` in any directory to spin up an orchestrated 4-pane quadrant layout with your editor, dev server, shell, and AI agent.
+- **Pluggable Architecture**: Core Arise focuses purely on session orchestration and terminal layouts. Workflows like Git worktrees are provided through a lightweight, extensible plugin ecosystem.
+- **Interactive TUI Mode**: Run `arise` with zero arguments for an interactive menu (launch sessions, attach/switch sessions, manage git worktrees, and install AI agent skills).
+- **First-Class AI Agent Panes**: Native awareness and focus targeting for AI CLI agents (**Antigravity `agy`**, **Claude Code**, **Aider**, **Copilot CLI**).
+- **Pluggable Project Presets**: Built-in support for **Node.js** (`npm`/`yarn`/`pnpm`), **Laravel/PHP** (`composer`, logs, permissions), and **Generic** projects with zero-config auto-detection.
+- **Built-in Worktree Plugin**: Full git worktree creation, branch resolution, environment file copying, and safe `--nuke` teardown with protected branch safeguards.
 
 ---
 
@@ -25,20 +26,21 @@ npm install -g arise
 npx arise
 ```
 
-Aliases provided: `arise`, `herdr-worktree`, `herder-worktree`, and `hwk`.
-
 ---
 
 ## Quick Start
 
-### 1. Interactive Setup Wizard (`arise init`)
+### 1. Bootstrap a Session in the Current Directory
 ```bash
-# Run interactive configuration wizard (Quick or Guided Step-by-Step, with .gitignore prompt)
-arise init
+# Auto-detects project type and launches in tmux (or herdr):
+arise
 
-# Fast-path quick initialization with detected repo defaults (optionally adding to .gitignore)
-arise init --quick
-arise init --quick --gitignore
+# Specify your preferred multiplexer:
+arise --mux tmux
+arise --mux herdr
+
+# Bootstrap a session for a specific directory:
+arise ~/projects/my-api --name api
 ```
 
 ### 2. Interactive Menu / TUI Mode (Zero Arguments)
@@ -47,44 +49,33 @@ arise init --quick --gitignore
 arise
 ```
 Interactive options include:
-- 🚀 **Create new worktree** (select base source branch, enter branch name)
-- 🔄 **Switch / Open existing worktree in Herdr**
-- 📋 **List worktrees** (with active Herdr workspace status)
-- 🧹 **Nuke / Cleanup worktree** (multi-select / picker with branch deletion options)
+- 🚀 **Launch session in current directory** (boots in tmux or Herdr)
+- 🔄 **Attach / Switch to existing session**
+- 🌿 **Git Worktree Operations** (Create new worktree, Switch worktree, List worktrees, Nuke worktree)
 - ⚙️ **Initialize / Configure Arise** (interactive setup wizard)
 
-### 2. Create a Worktree Session (CLI Flags)
+### 3. Git Worktree Workflows (Worktree Plugin)
 ```bash
-# Auto-detects project type (Node, Laravel, etc.)
+# Create a new git worktree & boot into tmux or herdr session:
 arise --branch feature/login
 
-# Explicitly specify a preset
-arise --branch feature/login --preset laravel
+# Explicitly choose multiplexer, preset, and AI agent:
+arise --branch feature/login --mux tmux --preset laravel --agent claude
 
-# Choose your AI CLI agent (e.g. Claude Code, Aider, Antigravity, or Copilot)
-arise --branch feature/login --agent claude
-arise --branch feature/login -a aider
-
-# Specify base branch, custom workspace name, or focus pane
-arise --branch feature/login --source develop --focus claude
-```
-
-### 3. Nuke / Clean Up a Worktree
-```bash
-# Inside a worktree directory (auto-detects current worktree):
-arise --nuke
-
-# From anywhere, by branch or directory name:
+# Safe worktree nuke / teardown:
 arise --nuke feature-login
-
-# Keep branches, only remove directory:
-arise --nuke feature-login --dir-only
-
-# Delete local branch, keep remote on origin:
-arise --nuke feature-login --keep-remote
 ```
 
-### 4. Install AI Agent Skill (Antigravity `agy`, Claude Code, etc.)
+### 4. Manage Sessions
+```bash
+# List active sessions in current multiplexer:
+arise --sessions
+
+# Close / kill an active session:
+arise --kill my-session
+```
+
+### 5. Install AI Agent Skill (Antigravity `agy`, Claude Code, etc.)
 ```bash
 # Install globally to ~/.agents/skills and link to ~/.gemini/skills:
 arise --install-skill
@@ -97,25 +88,24 @@ arise --install-skill --local
 
 ## Customizing via `.ariserc.json` or `arise.config.js`
 
-Place a `.ariserc.json` in your repository root, worktrees base directory, or `~/.config/arise/config.js` (also supports `.worktreerc.json` / `~/.config/herdr-worktree/` for backwards compatibility):
+Place a `.ariserc.json` in your project root or `~/.config/arise/config.js`:
 
 ```json
 {
-  "preset": "laravel",
-  "repo": {
-    "bareRepo": "/path/to/bare/repo.git",
-    "worktreesBase": "/path/to/worktrees",
-    "defaultBaseBranch": "main"
-  },
+  "multiplexer": "tmux",
+  "plugins": ["worktree"],
+  "preset": "node",
   "workspace": {
     "labelPrefix": "[API] ",
-    "agent": "claude",
-    "defaultFocus": "claude"
+    "agent": "agy",
+    "defaultFocus": "agy"
   },
-  "scaffold": {
-    "envSource": "/path/to/shared/.env",
-    "symlink": "/var/www/my-app"
-  }
+  "layout": [
+    { "id": "vim", "title": "vim", "cmd": "nvim .", "position": "root" },
+    { "id": "server", "title": "server", "cmd": "npm run dev", "split": "right", "from": "vim" },
+    { "id": "shell", "title": "shell", "cmd": null, "split": "down", "from": "vim" },
+    { "id": "agy", "title": "agy", "cmd": "agy", "split": "down", "from": "server", "focus": true, "isAgent": true }
+  ]
 }
 ```
 
@@ -126,21 +116,28 @@ Place a `.ariserc.json` in your repository root, worktrees base directory, or `~
 ```
 arise/
 ├── package.json
-├── index.js               # Main runner module
+├── index.js               # Main runner entrypoint
 ├── bin/
 │   └── cli.js             # Executable CLI
 ├── lib/
 │   ├── cli.js             # CLI argument parsing & help output
 │   ├── interactive.js     # Interactive TUI menu & prompt handlers
 │   ├── config.js          # Config discovery & preset merging
-│   ├── git.js             # Git worktree & branch operations
-│   ├── herdr.js           # Herdr workspace & pane operations
 │   ├── layout.js          # Declarative terminal layout renderer
 │   ├── context.js         # Lifecycle execution context & helpers
 │   ├── skill.js           # Agent skill installer for agy/claude
+│   ├── drivers/           # Terminal multiplexer abstraction
+│   │   ├── index.js       # Driver registry & auto-detection
+│   │   ├── tmux.js        # tmux driver implementation
+│   │   └── herdr.js       # Herdr driver implementation
+│   ├── plugins/           # Pluggable ecosystem
+│   │   ├── manager.js     # Plugin lifecycle manager
+│   │   ├── worktree.js    # Built-in Git worktree lifecycle plugin
+│   │   └── index.js       # Plugin resolver
 │   └── lifecycle/
-│       ├── create.js      # Worktree creation & layout pipeline
-│       └── nuke.js        # Safe teardown & branch deletion pipeline
+│       ├── session.js     # Core session bootstrap & close engine
+│       ├── create.js      # Backwards-compatible create adapter
+│       └── nuke.js        # Backwards-compatible nuke adapter
 └── presets/
     ├── index.js           # Preset registry & auto-detection
     ├── node.js            # Node / JS project preset

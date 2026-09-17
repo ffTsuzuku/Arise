@@ -1,6 +1,6 @@
 # Configuration File Reference (`.ariserc.json` / `arise.config.js` / `.worktreerc.json`)
 
-`arise` allows project-level and user-level configuration files to override preset defaults, topology paths, and terminal layouts.
+`arise` allows project-level and user-level configuration files to override multiplexer driver, plugins, preset defaults, topology paths, and terminal layouts.
 
 ---
 
@@ -19,6 +19,16 @@
 
 ## Configuration Schema & Options
 
+### `multiplexer` (string)
+The terminal multiplexer backend to use (`'tmux'`, `'herdr'`, or `'auto'`).
+- `'tmux'`: Uses native tmux session management (`tmux new-session`, `tmux split-window`).
+- `'herdr'`: Uses Herdr workspace management (`herdr workspace create`, `herdr pane split`).
+- `'auto'` (Default): Detects from active `$TMUX` / `$HERDR_ENV` environment or available binaries.
+
+### `plugins` (array)
+An array of plugins to load (`string` or `object`), e.g. `["worktree"]`. Built-in plugins include:
+- `'worktree'`: Full Git worktree lifecycle management, branch creation, and safe teardown.
+
 ### `preset` (string)
 The preset to use (`'node'`, `'laravel'`, `'generic'`, custom preset name, or relative/absolute file path such as `'./presets/custom.js'`). When omitted, `arise` auto-detects the preset from file markers and custom preset directories (`.arise/presets/` or `~/.config/arise/presets/`).
 
@@ -29,14 +39,14 @@ The preset to use (`'node'`, `'laravel'`, `'generic'`, custom preset name, or re
 - **`protectedBranches`** (`string[]`): Array of branches protected against deletion during `--nuke` (defaults to `['main', 'master', 'develop', 'prod', 'staging', 'production']`).
 
 ### `workspace` (object)
-- **`labelPrefix`** (`string`): String prepended to Herdr workspace labels (e.g. `'[BE] '`).
+- **`labelPrefix`** (`string`): String prepended to workspace / session labels (e.g. `'[BE] '`).
 - **`agent`** (`string | object`): AI CLI agent to run in the designated agent quadrant (`'agy'`, `'claude'`, `'aider'`, `'copilot'`, `'none'`, or `{ cmd: 'claude', title: 'claude' }`). Can also be set via the `ARISE_AGENT` environment variable or `--agent` / `-a` CLI flag.
 - **`defaultFocus`** (`string`): Default pane ID or title to focus upon creation (`'agent'`, `'agy'`, `'claude'`, `'vim'`, `'logs'`, `'server'`, `'shell'`).
 
 ### `layout` (array)
 An array of pane definitions:
 - **`id`** (`string`): Unique ID within this layout.
-- **`title`** (`string`): Display label in Herdr.
+- **`title`** (`string`): Display label in the terminal multiplexer.
 - **`cmd`** (`string | null`): Command executed upon startup.
 - **`position`** (`'root'`): Set on the root pane.
 - **`from`** (`string`): Parent pane ID to split from.
@@ -51,18 +61,16 @@ An array of pane definitions:
 
 ---
 
-## Example: `.worktreerc.json`
+## Example: `.ariserc.json`
 
 ```json
 {
+  "multiplexer": "tmux",
+  "plugins": ["worktree"],
   "preset": "laravel",
-  "repo": {
-    "bareRepo": "/path/to/bare/repo.git",
-    "worktreesBase": "/path/to/worktrees",
-    "defaultBaseBranch": "main"
-  },
   "workspace": {
     "labelPrefix": "[API] ",
+    "agent": "agy",
     "defaultFocus": "agy"
   },
   "scaffold": {
@@ -86,14 +94,19 @@ An array of pane definitions:
 | `--gitignore` | | (Wizard option) Add generated configuration file to `.gitignore` |
 | `--no-gitignore` | | (Wizard option) Do not add generated configuration file to `.gitignore` |
 | `--interactive` | `-I`, `--menu` | Explicitly launch interactive prompt/menu |
-| `--branch <name>` | `-b <name>` | Git branch to create or boot into |
+| `--mux <driver>` | `-m`, `--multiplexer` | Terminal multiplexer driver (`'tmux'`, `'herdr'`, or `'auto'`) |
+| `--session <name>` | `-w`, `--name` | Custom session / workspace name |
+| `--dir <path>` | `-C <path>` | Target directory to bootstrap session inside |
+| `--no-attach` | | Create session and render layout without attaching to it |
+| `--kill [<target>]` | `-k`, `--close` | Close / kill active or specified terminal session |
+| `--sessions` | `--list-sessions` | List all active terminal sessions across current multiplexer |
+| `--branch <name>` | `-b <name>` | Git branch to create or boot into (via worktree plugin) |
 | `--dirname <dir>` | `-d <dir>` | Directory name for the worktree (defaults to sanitized branch) |
-| `--workspace <name>` | `-w <name>` | Custom Herdr workspace name |
 | `--source <branch>` | `-s`, `--base` | Base source branch for new branch creation |
 | `--preset <name>` | `-p <name>` | Override project preset (`node`, `laravel`, `generic`) |
 | `--agent <name>` | `-a <name>` | AI CLI agent (`agy`, `claude`, `aider`, `copilot`, `none`) |
 | `--focus <pane>` | `-f <pane>` | Focus target pane |
-| `--nuke [<target>]` | `-n`, `--cleanup`, `-c` | Safe teardown: closes Herdr workspace, removes worktree, deletes branches |
+| `--nuke [<target>]` | `-n`, `--cleanup`, `-c` | Safe teardown: closes session, removes worktree, deletes branches |
 | `--dir-only` | `--keep-branch` | Only remove worktree directory; preserve branches |
 | `--keep-remote` | `--local-only` | Delete local branch, preserve remote on origin |
 | `--force` | `-f` | Force worktree deletion if uncommitted changes exist |
@@ -103,4 +116,3 @@ An array of pane definitions:
 | `--verbose` | `-V` | Alias for `--debug` |
 | `--help` | `-h` | Show help and usage |
 | `--version` | `-v` | Show version |
-

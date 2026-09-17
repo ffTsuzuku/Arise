@@ -259,6 +259,29 @@ module.exports = {
       fs.rmSync(testDir, { recursive: true, force: true });
     }
   });
+
+  await t.test('resolves multiplexer and plugins from config and flags', () => {
+    const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arise-mux-config-'));
+    try {
+      fs.writeFileSync(
+        path.join(testDir, '.ariserc.json'),
+        JSON.stringify({
+          multiplexer: 'tmux',
+          plugins: ['worktree'],
+        }),
+        'utf8'
+      );
+
+      const configFromFile = resolveConfiguration({}, testDir);
+      assert.equal(configFromFile.multiplexer, 'tmux');
+      assert.deepEqual(configFromFile.plugins, ['worktree']);
+
+      const configFromFlags = resolveConfiguration({ multiplexer: 'herdr' }, testDir);
+      assert.equal(configFromFlags.multiplexer, 'herdr');
+    } finally {
+      fs.rmSync(testDir, { recursive: true, force: true });
+    }
+  });
 });
 
 
