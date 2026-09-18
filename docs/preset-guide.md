@@ -97,26 +97,35 @@ arise --branch feature/auth --preset ./custom/my-preset.js
 
 ---
 
-## Contributing Built-in Presets
+---
 
-To add a new first-class preset directly into the Arise repository:
+## Creating Presets with the Interactive Wizard
 
-1. Add your preset file to `presets/<name>.js`.
-2. Open `presets/index.js` and register it in `builtInPresets`:
-   ```javascript
-   const rustPreset = require('./rust');
+The easiest way to create a reusable preset is using the built-in wizard:
 
-   const builtInPresets = [
-     laravelPreset,
-     nodePreset,
-     rustPreset,
-     genericPreset,
-   ];
-   ```
-3. Add alias lookup in `getPreset(name)`:
-   ```javascript
-   if (normalized === 'rust' || normalized === 'rs' || normalized === 'cargo') {
-     return rustPreset;
-   }
-   ```
-4. Run test suite: `npm test`.
+```bash
+# Launch the preset creation walkthrough
+arise init preset
+# Or:
+arise preset new
+```
+
+The wizard will guide you through:
+1. **Preset Name & Icon**: E.g. `fastapi` with ⚡ or `rust` with 🦀.
+2. **Storage Scope**:
+   - **Global (`~/.config/arise/presets/`)**: Available across every repository and project on your machine.
+   - **Local (`.arise/presets/`)**: Committed inside your repository to share with teammates.
+3. **Auto-Detection File Marker**: Optional marker file (e.g. `Cargo.toml`, `go.mod`, `manage.py`, `package.json`).
+4. **Workspace Setup Commands**: Array of commands run on fresh workspaces (e.g. `cargo build`, `cp .env.example .env`).
+5. **Workspace Cleanup Commands**: Array of commands run on workspace deletion (e.g. `cargo clean`, `docker compose down`).
+6. **Layout Templates**: Choose between 4-pane quadrant, 3-pane split, or 2-pane minimal layout and configure commands.
+
+---
+
+## Fallback Default Preset
+
+When no preset matches or is specified, Arise uses the un-opinionated `default` preset:
+- Root pane: Blank interactive shell / editor.
+- Secondary pane: Shell.
+- Agent pane: Antigravity AI (`agy`).
+- Setup & Cleanup: Empty (`[]`).

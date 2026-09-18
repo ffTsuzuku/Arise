@@ -53,7 +53,7 @@
 
 ### 2. Configuration & Preset Loader (`lib/config.js`)
 - Recursively searches search directories and home configs for `.ariserc.js`, `arise.config.js`, `.ariserc.json`, or `.ariserc`.
-- Merges project presets (`node`, `laravel`, `generic`, or custom).
+- Merges project presets (user-defined custom presets or fallback default).
 - Resolves preferred multiplexer (`tmux`, `herdr`, or `auto`) and loaded plugins.
 
 ### 3. Plugin Subsystem (`lib/plugins/`)

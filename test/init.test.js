@@ -133,7 +133,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     const jsonStr = content.replace(/\/\/.*$/gm, '').trim();
     const config = JSON.parse(jsonStr);
 
-    assert.equal(config.preset, 'node');
+    assert.equal(config.preset, 'default');
     assert.ok(config.repo);
     assert.ok(config.workspace);
     assert.equal(config.workspace.agent, 'agy');
@@ -364,7 +364,81 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
       assert.equal(typeof exported.detect, 'function');
       assert.equal(exported.layout.length, 2);
       assert.equal(exported.layout[1].cmd, 'uvicorn main:app --reload');
-      assert.ok(typeof exported.hooks.onScaffold === 'function');
+      assert.ok(Array.isArray(exported.setup));
+      assert.ok(Array.isArray(exported.cleanup));
+      assert.ok(exported.setup.includes('pip install -r requirements.txt'));
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  await t.test('runCreatePresetWizard creates standalone preset with setup and cleanup commands', async () => {
+    const tempDir = createTempDir('arise-preset-wizard-');
+    try {
+      const exportPath = await ConfigInitWizard.runCreatePresetWizard(tempDir, {
+        presetName: 'rust-service',
+        icon: '🦀',
+        exportScope: 'local',
+        detectMarker: 'Cargo.toml',
+        setupCommands: ['cargo build', 'cp .env.example .env'],
+        cleanupCommands: ['cargo clean'],
+        layoutTemplate: '4pane',
+        editorCmd: 'nvim .',
+        serverCmd: 'cargo watch -x run',
+        agentCmd: 'agy',
+      });
+
+      assert.ok(exportPath);
+      assert.ok(fs.existsSync(exportPath));
+      assert.equal(path.basename(exportPath), 'rust-service.js');
+      assert.equal(path.dirname(exportPath), path.join(tempDir, '.arise', 'presets'));
+
+      const exported = require(exportPath);
+      assert.equal(exported.name, 'rust-service');
+      assert.equal(exported.icon, '🦀');
+      assert.equal(typeof exported.detect, 'function');
+      assert.deepEqual(exported.setup, ['cargo build', 'cp .env.example .env']);
+      assert.deepEqual(exported.cleanup, ['cargo clean']);
+      assert.equal(exported.layout.length, 4);
+      assert.equal(exported.layout[0].cmd, 'nvim .');
+      assert.equal(exported.layout[1].cmd, 'cargo watch -x run');
+
+      // Test detect function
+      assert.equal(exported.detect(tempDir), false);
+      fs.writeFileSync(path.join(tempDir, 'Cargo.toml'), '[package]\nname = "test"\n');
+      assert.equal(exported.detect(tempDir), true);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  await t.test('ConfigInitWizard.run with initTarget="preset" dispatches directly to preset wizard', async () => {
+    const tempDir = createTempDir('arise-init-preset-dispatch-');
+    try {
+      const exportPath = await ConfigInitWizard.run({
+        initTarget: 'preset',
+        presetName: 'go-microservice',
+        icon: '🐹',
+        exportScope: 'local',
+        detectMarker: 'go.mod',
+        setup: ['go mod download'],
+        cleanup: ['go clean'],
+        layoutTemplate: '2pane',
+        editorCmd: 'code .',
+        agentCmd: 'agy',
+        cwd: tempDir,
+      });
+
+      assert.ok(exportPath);
+      assert.ok(fs.existsSync(exportPath));
+      assert.equal(path.basename(exportPath), 'go-microservice.js');
+
+      const preset = require(exportPath);
+      assert.equal(preset.name, 'go-microservice');
+      assert.equal(preset.icon, '🐹');
+      assert.deepEqual(preset.setup, ['go mod download']);
+      assert.deepEqual(preset.cleanup, ['go clean']);
+      assert.equal(preset.layout.length, 2);
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }

@@ -36,6 +36,8 @@ async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
         targetPath: flags.targetPath,
         force: flags.force,
         gitignore: flags.gitignore,
+        initTarget: flags.initTarget,
+        presetOnly: flags.initTarget === 'preset',
         cwd,
       });
       return;

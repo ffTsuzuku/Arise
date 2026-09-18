@@ -10,8 +10,7 @@ Universal, multiplexer-agnostic terminal workspace bootstrapper supporting **tmu
 - **Instant Workspace Bootstrapping**: Run `arise` in any directory to spin up an orchestrated 4-pane quadrant layout with your editor, dev server, shell, and AI agent.
 - **Pluggable Architecture**: Core Arise focuses purely on session orchestration and terminal layouts. Workflows like Git worktrees are provided through a lightweight, extensible plugin ecosystem.
 - **Interactive TUI Mode**: Run `arise` with zero arguments for an interactive menu (launch sessions, attach/switch sessions, manage git worktrees, and install AI agent skills).
-- **First-Class AI Agent Panes**: Native awareness and focus targeting for AI CLI agents (**Antigravity `agy`**, **Claude Code**, **Aider**, **Copilot CLI**).
-- **Pluggable Project Presets**: Built-in support for **Node.js** (`npm`/`yarn`/`pnpm`), **Laravel/PHP** (`composer`, logs, permissions), and **Generic** projects with zero-config auto-detection.
+- **User-Defined Project Presets**: Completely un-opinionated by default with zero hardcoded presets. Build reusable presets via `arise init preset` and store them globally (`~/.config/arise/presets/`) or locally (`.arise/presets/`).
 - **Built-in Worktree Plugin**: Full git worktree creation, branch resolution, customizable setup commands, and safe teardown with protected branch safeguards.
 
 ---
@@ -153,8 +152,6 @@ arise/
 │   └── lifecycle/
 │       └── session.js     # Core session bootstrap & close engine
 └── presets/
-    ├── index.js           # Preset registry & auto-detection
-    ├── node.js            # Node / JS project preset
-    ├── laravel.js         # Laravel / PHP project preset
-    └── generic.js         # Fallback generic preset
+    ├── index.js           # Preset registry & custom loader
+    └── generic.js         # Fallback default un-opinionated preset
 ```

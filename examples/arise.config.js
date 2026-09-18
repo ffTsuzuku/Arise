@@ -1,8 +1,8 @@
 /**
- * Example JavaScript Configuration with Custom Lifecycle Hooks
+ * Example JavaScript Configuration with Custom Presets and Setup Commands
  */
 module.exports = {
-  preset: 'laravel',
+  preset: 'default',
 
   repo: {
     bareRepo: '/path/to/bare/repo.git',
@@ -16,14 +16,12 @@ module.exports = {
     defaultFocus: 'agy',
   },
 
-  scaffold: {
-    envSource: '/path/to/shared/.env',
-    symlink: '/var/www/my-app',
-  },
+  setup: [
+    'cp .env.example .env',
+    'npm install',
+  ],
 
-  hooks: {
-    async onScaffold(ctx) {
-      console.log('Custom project post-create hook executing...');
-    },
-  },
+  cleanup: [
+    'docker compose down -v',
+  ],
 };

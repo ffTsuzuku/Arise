@@ -11,7 +11,7 @@
 - **Core Goal**: Provide a unified CLI to bootstrap terminal workspaces with multi-pane declarative layouts, dev servers, editors, shells, and AI CLI agent panes across **tmux** and **Herdr**, based on directory context or configuration.
 - **Multiplexer Agnostic**: The engine is completely abstracted from underlying multiplexers via `lib/drivers/` (`tmux` and `herdr`).
 - **Pluggable Ecosystem**: Features such as Git worktree management are implemented as pluggable lifecycle extensions (`lib/plugins/`) rather than hardcoded into the core engine.
-- **Pluggable Presets**: Language- and framework-specific behavior (Node.js, Laravel/PHP, etc.) is isolated in `presets/`.
+- **User-Defined Presets**: Zero hardcoded presets by default. Users create reusable presets via `arise init preset` and store them globally (`~/.config/arise/presets/`) or locally (`.arise/presets/`), with an un-opinionated fallback (`presets/generic.js`).
 - **User Configurations**: Project-specific paths, preferred multiplexer, plugins, and custom layouts are configured via `.ariserc.json` / `arise.config.js`.
 
 ---
@@ -47,10 +47,8 @@ arise/
 │   └── lifecycle/
 │       └── session.js         # Core session bootstrap & close engine
 ├── presets/
-│   ├── index.js               # Preset registry & auto-detection engine
-│   ├── node.js                # Generic Node.js preset (npm, 'npm server' pane)
-│   ├── laravel.js             # Generic Laravel/PHP preset (composer, permissions, logs pane)
-│   └── generic.js             # Fallback preset for standard repos
+│   ├── index.js               # Preset registry & custom loader
+│   └── generic.js             # Fallback un-opinionated default preset
 ├── docs/                      # In-depth architectural and developer documentation
 │   ├── architecture.md        # Lifecycle flowcharts & subsystem details
 │   ├── preset-guide.md        # Step-by-step tutorial on creating new presets
@@ -126,8 +124,8 @@ arise/
 2. Users can register it in `.ariserc.json` or `arise.config.js` under `plugins`.
 
 ### C. How to Add a New Preset
-1. Create `presets/<name>.js` conforming to the `Preset` interface in `types.d.ts`.
-2. Register it in `presets/index.js` inside `builtInPresets`.
+1. Use `arise init preset` or `arise preset new` to walk through creating a preset, or write a `.js` module conforming to the `Preset` interface in `types.d.ts`.
+2. Save it globally in `~/.config/arise/presets/<name>.js` or locally in `.arise/presets/<name>.js`.
 3. Add a test in `test/config.test.js`.
 
 ---

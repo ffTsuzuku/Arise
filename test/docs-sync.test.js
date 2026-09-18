@@ -24,8 +24,14 @@ test('Documentation & Type Synchronization Verification', async (t) => {
     }
   });
 
-  await t.test('all built-in presets conform to Preset structure', () => {
-    assert.ok(Array.isArray(builtInPresets) && builtInPresets.length > 0);
+  await t.test('built-in presets and fallback preset conform to Preset structure', () => {
+    assert.ok(Array.isArray(builtInPresets));
+
+    const defaultPreset = require('../presets/generic');
+    assert.ok(defaultPreset.name, 'Default preset must have a name');
+    assert.equal(typeof defaultPreset.detect, 'function', 'Default preset must have a detect function');
+    assert.ok(defaultPreset.repo, 'Default preset must define repo configuration');
+    assert.ok(Array.isArray(defaultPreset.layout), 'Default preset must define a layout array');
 
     for (const preset of builtInPresets) {
       assert.ok(preset.name, 'Preset must have a name');

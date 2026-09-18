@@ -1,15 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const nodePreset = require('./node');
-const laravelPreset = require('./laravel');
-const genericPreset = require('./generic');
+const defaultPreset = require('./generic');
 
-const builtInPresets = [
-  laravelPreset, // Check Laravel/PHP before generic
-  nodePreset,    // Check Node before generic
-  genericPreset, // Catch-all fallback
-];
+const builtInPresets = [];
+
 
 /**
  * Returns list of directories to search for custom presets.
@@ -152,15 +147,9 @@ function getPreset(name, searchDirs = []) {
 
   const normalized = raw.toLowerCase();
 
-  // 2. Built-in Preset Aliases
-  if (normalized === 'php' || normalized === 'laravel' || normalized === 'api' || normalized === 'be') {
-    return laravelPreset;
-  }
-  if (normalized === 'node' || normalized === 'js' || normalized === 'ts' || normalized === 'fe' || normalized === 'react') {
-    return nodePreset;
-  }
+  // 2. Default fallback alias
   if (normalized === 'generic' || normalized === 'default') {
-    return genericPreset;
+    return defaultPreset;
   }
 
   // 3. Custom Presets in Search Directories
@@ -208,7 +197,7 @@ function detectPreset(cwd = process.cwd(), searchDirs = []) {
   const allSearchDirs = [cwd, ...searchDirs];
   const customPresets = loadCustomPresets(allSearchDirs);
 
-  // 1. Check custom presets first
+  // 1. Check user-defined custom presets
   for (const preset of customPresets) {
     if (typeof preset.detect === 'function') {
       try {
@@ -219,48 +208,28 @@ function detectPreset(cwd = process.cwd(), searchDirs = []) {
     }
   }
 
-  // 2. Check built-in presets
-  for (const preset of builtInPresets) {
-    if (typeof preset.detect === 'function') {
-      try {
-        if (preset.detect(cwd)) {
-          return preset;
-        }
-      } catch {}
-    }
-  }
-
-  // 3. Fallback to generic
-  return genericPreset;
+  // 2. Fallback to default generic preset
+  return defaultPreset;
 }
 
 /**
- * Returns a list of all available presets (built-ins + discovered custom presets).
+ * Returns a list of all discovered user-defined presets.
  * @param {string[]} searchDirs
  * @returns {Array<{ name: string, label: string, isCustom: boolean, preset: import('../types').Preset }>}
  */
 function listPresets(searchDirs = []) {
-  const list = [
-    { name: 'node', label: '✨ Node.js (node)', isCustom: false, preset: nodePreset },
-    { name: 'laravel', label: '🐘 Laravel / PHP (laravel)', isCustom: false, preset: laravelPreset },
-    { name: 'generic', label: '📦 Generic (generic)', isCustom: false, preset: genericPreset },
-  ];
-
   const customPresets = loadCustomPresets(searchDirs);
-  for (const cp of customPresets) {
-    if (!list.some((item) => item.name.toLowerCase() === cp.name.toLowerCase())) {
-      const icon = cp.icon || cp.emoji || '🧩';
-      list.push({
-        name: cp.name,
-        label: `${icon} ${cp.name}`,
-        isCustom: true,
-        preset: cp,
-      });
-    }
-  }
-
-  return list;
+  return customPresets.map((cp) => {
+    const icon = cp.icon || cp.emoji || '🧩';
+    return {
+      name: cp.name,
+      label: `${icon} ${cp.name}`,
+      isCustom: true,
+      preset: cp,
+    };
+  });
 }
+
 
 module.exports = {
   getPreset,

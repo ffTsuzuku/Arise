@@ -27,7 +27,7 @@ An array of plugins to load (`string` or `object`), e.g. `["worktree"]`. Built-i
 - `'worktree'`: Full Git worktree lifecycle management, branch creation, and safe teardown.
 
 ### `preset` (string)
-The preset to use (`'node'`, `'laravel'`, `'generic'`, custom preset name, or relative/absolute file path such as `'./presets/custom.js'`). When omitted, `arise` auto-detects the preset from file markers and custom preset directories (`.arise/presets/` or `~/.config/arise/presets/`).
+The preset to use (`'default'`, custom preset name, or relative/absolute file path such as `'./presets/custom.js'`). When omitted, `arise` auto-detects user-defined presets from `~/.config/arise/presets/` and `.arise/presets/`, falling back to the un-opinionated `'default'` preset.
 
 ### `repo` (object)
 - **`bareRepo`** (`string | null`): Path to bare repository (e.g. `'/path/to/bare/repo.git'`).
@@ -118,7 +118,8 @@ Shell command(s) executed in the workspace directory before removing or nuking a
 | Flag | Aliases | Description |
 |---|---|---|
 | *(none)* | | Running `arise` with zero arguments launches the interactive TUI menu |
-| `init` | `--init` | Run the interactive Arise configuration initialization wizard (`.ariserc.json`) |
+| `init [preset]` | `--init` | Run the interactive setup wizard or preset creator (`arise init preset`) |
+| `preset new` | | Walk through creating a reusable preset (global or local) |
 | `--quick` | `-q` | (Wizard option) Fast-path setup with detected repo defaults |
 | `--target <path>` | `--out <path>` | (Wizard option) Custom destination path for generated configuration |
 | `--gitignore` | | (Wizard option) Add generated configuration file to `.gitignore` |
@@ -133,7 +134,7 @@ Shell command(s) executed in the workspace directory before removing or nuking a
 | `--branch <name>` | `-b <name>` | Git branch to create or boot into (via worktree plugin) |
 | `--dirname <dir>` | `-d <dir>` | Directory name for the worktree (defaults to sanitized branch) |
 | `--source <branch>` | `-s`, `--base` | Base source branch for new branch creation |
-| `--preset <name>` | `-p <name>` | Override project preset (`node`, `laravel`, `generic`) |
+| `--preset <name>` | `-p <name>` | Override project preset ('default' or custom preset name) |
 | `--agent <name>` | `-a <name>` | AI CLI agent (`agy`, `claude`, `aider`, `copilot`, `none`) |
 | `--focus <pane>` | `-f <pane>` | Focus target pane |
 | `--nuke [<target>]` | `-n`, `--cleanup`, `-c` | Safe teardown: closes session, removes worktree, deletes branches |

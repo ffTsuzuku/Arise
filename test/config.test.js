@@ -12,62 +12,65 @@ test('Preset Registry & Resolution', async (t) => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  await t.test('retrieves node preset by alias', () => {
-    assert.equal(getPreset('node').name, 'node');
-    assert.equal(getPreset('js').name, 'node');
-    assert.equal(getPreset('fe').name, 'node');
+  await t.test('has empty built-in presets list by default (user-defined only)', () => {
+    const { builtInPresets } = require('../presets');
+    assert.deepEqual(builtInPresets, []);
   });
 
-  await t.test('retrieves laravel preset by alias', () => {
-    assert.equal(getPreset('laravel').name, 'laravel');
-    assert.equal(getPreset('php').name, 'laravel');
-    assert.equal(getPreset('api').name, 'laravel');
-    assert.equal(getPreset('be').name, 'laravel');
+  await t.test('retrieves default fallback preset by alias', () => {
+    assert.equal(getPreset('generic').name, 'default');
+    assert.equal(getPreset('default').name, 'default');
   });
 
-  await t.test('retrieves generic preset by alias', () => {
-    assert.equal(getPreset('generic').name, 'generic');
-    assert.equal(getPreset('default').name, 'generic');
+  await t.test('returns null for unknown preset without matches', () => {
+    assert.equal(getPreset('nonexistent-preset'), null);
   });
 
-  await t.test('resolves configuration with preset overrides', () => {
-    const config = resolveConfiguration({ presetName: 'node' }, tmpDir);
-    assert.equal(config.preset.name, 'node');
-    assert.equal(config.repo.defaultBaseBranch, 'develop');
+  await t.test('resolves configuration with default preset when none specified', () => {
+    const config = resolveConfiguration({}, tmpDir);
+    assert.equal(config.preset.name, 'default');
+    assert.equal(config.repo.defaultBaseBranch, 'main');
     assert.equal(Array.isArray(config.layout), true);
-    assert.equal(config.layout.length, 4);
+    assert.equal(config.layout.length, 3);
+    assert.deepEqual(config.setup, []);
+    assert.deepEqual(config.cleanup, []);
   });
 
-  await t.test('merges scaffold configuration and supports custom install commands', () => {
-    const config = resolveConfiguration({ presetName: 'node' }, tmpDir);
-    assert.ok(typeof config.scaffold === 'object');
+  await t.test('resolves configuration with user-defined custom preset', () => {
+    const customDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arise-preset-res-'));
+    try {
+      const presetDir = path.join(customDir, '.arise', 'presets');
+      fs.mkdirSync(presetDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(presetDir, 'my-stack.js'),
+        `module.exports = {
+          name: 'my-stack',
+          repo: { defaultBaseBranch: 'develop' },
+          setup: ['npm install'],
+          cleanup: ['npm run clean'],
+          layout: [
+            { id: 'editor', title: 'editor', cmd: 'code .', position: 'root' },
+            { id: 'server', title: 'server', cmd: 'npm start', split: 'right', from: 'editor' },
+          ],
+        };`
+      );
 
-    // Simulate resolved config with custom install command
-    const customConfig = {
-      ...config,
-      scaffold: {
-        ...config.scaffold,
-        install: 'npm install --legacy-peer-deps',
-      },
-    };
-    assert.equal(customConfig.scaffold.install, 'npm install --legacy-peer-deps');
-
-    // Simulate skipping install
-    const skipConfig = {
-      ...config,
-      scaffold: {
-        ...config.scaffold,
-        install: false,
-      },
-    };
-    assert.equal(skipConfig.scaffold.install, false);
+      const config = resolveConfiguration({ presetName: 'my-stack' }, customDir);
+      assert.equal(config.preset.name, 'my-stack');
+      assert.equal(config.repo.defaultBaseBranch, 'develop');
+      assert.deepEqual(config.setup, ['npm install']);
+      assert.deepEqual(config.cleanup, ['npm run clean']);
+      assert.equal(config.layout.length, 2);
+    } finally {
+      fs.rmSync(customDir, { recursive: true, force: true });
+    }
   });
 
   await t.test('resolves and merges setup and cleanup shell command arrays', () => {
-    // 1. Preset defaults (node preset has setup: ['npm install'])
-    const nodeConfig = resolveConfiguration({ presetName: 'node' }, tmpDir);
-    assert.deepEqual(nodeConfig.setup, ['npm install']);
-    assert.deepEqual(nodeConfig.cleanup, []);
+    // 1. Default config has empty setup and cleanup
+    const defaultConfig = resolveConfiguration({}, tmpDir);
+    assert.deepEqual(defaultConfig.setup, []);
+    assert.deepEqual(defaultConfig.cleanup, []);
 
     // 2. Custom setup and cleanup arrays in file config
     const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arise-setup-cleanup-test-'));
@@ -75,7 +78,7 @@ test('Preset Registry & Resolution', async (t) => {
       fs.writeFileSync(
         path.join(testDir, '.ariserc.json'),
         JSON.stringify({
-          preset: 'generic',
+          preset: 'default',
           setup: ['cp .env.example .env', 'composer install'],
           cleanup: ['docker compose down -v'],
         }),
@@ -103,7 +106,7 @@ test('Preset Registry & Resolution', async (t) => {
   });
 
   await t.test('resolves CLI agent via flag and updates layout agent pane', () => {
-    const config = resolveConfiguration({ presetName: 'node', agent: 'claude' }, tmpDir);
+    const config = resolveConfiguration({ presetName: 'default', agent: 'claude' }, tmpDir);
     assert.equal(config.workspace.agent, 'claude');
 
     const agentPane = config.layout.find((p) => p.isAgent || p.id === 'agy' || p.id === 'agent');
@@ -117,7 +120,7 @@ test('Preset Registry & Resolution', async (t) => {
     const originalEnv = process.env.ARISE_AGENT;
     try {
       process.env.ARISE_AGENT = 'aider';
-      const config = resolveConfiguration({ presetName: 'laravel' }, tmpDir);
+      const config = resolveConfiguration({ presetName: 'default' }, tmpDir);
       assert.equal(config.workspace.agent, 'aider');
 
       const agentPane = config.layout.find((p) => p.isAgent || p.id === 'agy' || p.id === 'agent');
@@ -170,7 +173,7 @@ test('Preset Registry & Resolution', async (t) => {
 
       // 4. Add a custom .ariserc.json in the main worktree
       const customConfig = {
-        preset: 'node',
+        preset: 'default',
         layout: [
           { id: 'vim', title: 'vim', cmd: 'vim .', position: 'root' },
           { id: 'test', title: 'test watcher', cmd: 'npm test -- --watch', split: 'right', from: 'vim' },
@@ -200,7 +203,7 @@ test('Preset Registry & Resolution', async (t) => {
 /* Block comment explaining options */
 {
   "$schema": "./arise.schema.json",
-  "preset": "node",
+  "preset": "default",
   "layout": [
     { "id": "vim", "title": "editor", "cmd": "vim .", "position": "root" },
     { "id": "server", "title": "dev server", "cmd": null, "from": "vim", "split": "right" },

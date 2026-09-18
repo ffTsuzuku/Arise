@@ -37,6 +37,7 @@ export interface CliFlags {
   installSkill: boolean;
   skillScope: 'global' | 'local' | null;
   targetPath: string | null;
+  initTarget: 'preset' | 'project' | string | null;
   gitignore: boolean | null;
   showHelp: boolean;
   showVersion: boolean;
@@ -200,7 +201,7 @@ export interface PresetHooks {
 }
 
 export interface Preset {
-  /** Unique name of the preset ('node', 'laravel', 'generic', or custom name) */
+  /** Unique name of the preset ('default' or custom user-defined preset name) */
   name: string;
   /** Display icon or emoji (e.g. '🐍', '⚡', '🦀', '✨', '🐘', '📦') */
   icon?: string;

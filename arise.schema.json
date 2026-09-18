@@ -18,7 +18,7 @@
     },
     "preset": {
       "type": "string",
-      "description": "Preset name to use ('node', 'laravel', 'generic' or custom registered preset)"
+      "description": "Preset name to use ('default' or user-defined preset name, e.g. from ~/.config/arise/presets/ or .arise/presets/)"
     },
     "repo": {
       "type": "object",

@@ -24,10 +24,17 @@ arise --mux herdr
 arise /path/to/project --name my-session
 ```
 
-### Interactive Mode
+### Interactive Mode & Presets
 ```bash
 # Launch interactive menu (launch session, switch session, worktrees, config wizard)
 arise
+
+# Create a reusable preset (globally or locally)
+arise init preset
+arise preset new
+
+# Initialize local repository configuration
+arise init
 ```
 
 ### Git Worktree Subcommands (`arise wt`)
@@ -72,7 +79,7 @@ arise wt rm
 {
   "multiplexer": "tmux",
   "plugins": ["worktree"],
-  "preset": "node",
+  "preset": "default",
   "workspace": {
     "labelPrefix": "[API] ",
     "agent": "agy",

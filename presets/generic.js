@@ -1,12 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-
 module.exports = {
-  name: 'generic',
+  name: 'default',
   icon: '📦',
 
   detect(cwd) {
-    return true; // Fallback preset
+    return false; // Fallback only, does not auto-match
   },
 
   repo: {
@@ -16,15 +13,16 @@ module.exports = {
 
   workspace: {
     labelPrefix: '',
-    defaultFocus: 'agy',
+    defaultFocus: 'agent',
   },
 
   layout: [
-    { id: 'vim', title: 'vim', cmd: 'vim .', position: 'root' },
-    { id: 'shell', title: 'shell', cmd: null, split: 'right', from: 'vim' },
-    { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'shell', focus: true, isAgent: true },
+    { id: 'editor', title: 'editor', cmd: null, position: 'root' },
+    { id: 'shell', title: 'shell', cmd: null, split: 'right', from: 'editor' },
+    { id: 'agent', title: 'agent', cmd: 'agy', split: 'down', from: 'shell', focus: true, isAgent: true },
   ],
 
   setup: [],
   cleanup: [],
 };
+
