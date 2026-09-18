@@ -208,6 +208,31 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
+  await t.test('guided init generates setup and cleanup command arrays in .ariserc.json', async () => {
+    const tempDir = createTempDir('arise-guided-setup-cleanup-');
+    const targetFile = path.join(tempDir, '.ariserc.json');
+
+    const configPath = await ConfigInitWizard.run({
+      quick: false,
+      local: true,
+      targetPath: targetFile,
+      setup: ['npm install', 'cp .env.example .env'],
+      cleanup: ['docker compose down -v'],
+      cwd: tempDir,
+      force: true,
+    });
+
+    assert.equal(configPath, targetFile);
+    const content = fs.readFileSync(targetFile, 'utf8');
+    const jsonStr = content.replace(/\/\/.*$/gm, '').trim();
+    const config = JSON.parse(jsonStr);
+
+    assert.deepEqual(config.setup, ['npm install', 'cp .env.example .env']);
+    assert.deepEqual(config.cleanup, ['docker compose down -v']);
+
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
   await t.test('supports 6-pane custom layout array in config output', async () => {
     const tempDir = createTempDir('arise-6pane-test-');
     const targetFile = path.join(tempDir, '.ariserc.json');
