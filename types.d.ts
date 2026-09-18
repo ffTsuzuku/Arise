@@ -95,6 +95,7 @@ export interface PluginTargetResult {
   repoRoot?: string | null;
   isWorktree?: boolean;
   worktreeExists?: boolean;
+  isNew?: boolean;
   [key: string]: any;
 }
 
@@ -211,9 +212,13 @@ export interface Preset {
   workspace?: WorkspaceConfig;
   /** Declarative terminal layout */
   layout?: PaneDefinition[];
-  /** Scaffolding defaults */
+  /** Setup shell commands to execute upon creating a new workspace */
+  setup?: string[];
+  /** Cleanup shell commands to execute upon removing a workspace */
+  cleanup?: string[];
+  /** Scaffolding defaults (optional) */
   scaffold?: ScaffoldConfig;
-  /** Lifecycle hook implementations */
+  /** Lifecycle hook implementations (optional) */
   hooks?: PresetHooks;
   /** Whether this is a user or project-defined custom preset */
   isCustom?: boolean;
@@ -241,10 +246,14 @@ export interface AriseConfig {
   workspace: WorkspaceConfig;
   /** Declarative terminal layout */
   layout: PaneDefinition[];
-  /** Scaffolding configuration */
-  scaffold: ScaffoldConfig;
-  /** Lifecycle hook overrides */
-  hooks: PresetHooks;
+  /** Setup shell commands to execute upon creating a new workspace */
+  setup?: string[];
+  /** Cleanup shell commands to execute upon removing a workspace */
+  cleanup?: string[];
+  /** Scaffolding configuration (optional) */
+  scaffold?: ScaffoldConfig;
+  /** Lifecycle hook overrides (optional) */
+  hooks?: PresetHooks;
   /** Path to config file that was loaded (if any) */
   configFile?: string | null;
 }

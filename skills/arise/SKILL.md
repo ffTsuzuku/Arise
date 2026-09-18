@@ -30,9 +30,15 @@ arise /path/to/project --name my-session
 arise
 ```
 
-### Git Worktree Subcommands (Worktree Plugin)
+### Git Worktree Subcommands (`arise wt`)
 ```bash
 # Subcommands:
+arise wt create <branch> [--base <source>]
+arise wt list
+arise wt switch <branch>
+arise wt rm [<branch-or-dir>] [--force]
+
+# Or full-name:
 arise worktree create <branch> [--base <source>]
 arise worktree list
 arise worktree switch <branch>
@@ -54,7 +60,7 @@ arise kill <session-name>
 # (or arise --kill <session-name>)
 
 # Nuke active worktree (when run inside a worktree directory)
-arise worktree nuke
+arise wt rm
 # (or arise --nuke)
 ```
 
@@ -66,17 +72,19 @@ arise worktree nuke
 {
   "multiplexer": "tmux",
   "plugins": ["worktree"],
-  "preset": "laravel",
+  "preset": "node",
   "workspace": {
     "labelPrefix": "[API] ",
     "agent": "agy",
     "defaultFocus": "agy"
   },
-  "scaffold": {
-    "envSource": "/path/to/shared/.env",
-    "symlink": "/path/to/webserver/symlink",
-    "install": "composer install --no-interaction"
-  }
+  "setup": [
+    "cp .env.example .env",
+    "npm install"
+  ],
+  "cleanup": [
+    "docker compose down -v"
+  ]
 }
 ```
 

@@ -12,7 +12,7 @@ Universal, multiplexer-agnostic terminal workspace bootstrapper supporting **tmu
 - **Interactive TUI Mode**: Run `arise` with zero arguments for an interactive menu (launch sessions, attach/switch sessions, manage git worktrees, and install AI agent skills).
 - **First-Class AI Agent Panes**: Native awareness and focus targeting for AI CLI agents (**Antigravity `agy`**, **Claude Code**, **Aider**, **Copilot CLI**).
 - **Pluggable Project Presets**: Built-in support for **Node.js** (`npm`/`yarn`/`pnpm`), **Laravel/PHP** (`composer`, logs, permissions), and **Generic** projects with zero-config auto-detection.
-- **Built-in Worktree Plugin**: Full git worktree creation, branch resolution, environment file copying, and safe `--nuke` teardown with protected branch safeguards.
+- **Built-in Worktree Plugin**: Full git worktree creation, branch resolution, customizable setup commands, and safe teardown with protected branch safeguards.
 
 ---
 
@@ -54,9 +54,15 @@ Interactive options include:
 - 🌿 **Git Worktree Operations** (Create new worktree, Switch worktree, List worktrees, Nuke worktree)
 - ⚙️ **Initialize / Configure Arise** (interactive setup wizard)
 
-### 3. Git Worktree Subcommands (Worktree Plugin)
+### 3. Git Worktree Subcommands (`arise wt`)
 ```bash
-# Modern subcommands:
+# Clean, modern worktree subcommands:
+arise wt create feature/login    # Create worktree, run setup, and boot session
+arise wt list                    # List active worktrees & session statuses
+arise wt switch feature/login    # Switch / open existing worktree in session
+arise wt rm feature/login        # Run cleanup, close session, remove worktree & branches
+
+# Long-form alias:
 arise worktree create feature/login
 arise worktree list
 arise worktree switch feature/login
@@ -103,6 +109,13 @@ Place a `.ariserc.json` in your project root or `~/.config/arise/config.js`:
     "agent": "agy",
     "defaultFocus": "agy"
   },
+  "setup": [
+    "cp .env.example .env",
+    "npm install"
+  ],
+  "cleanup": [
+    "docker compose down -v"
+  ],
   "layout": [
     { "id": "vim", "title": "vim", "cmd": "nvim .", "position": "root" },
     { "id": "server", "title": "server", "cmd": "npm run dev", "split": "right", "from": "vim" },

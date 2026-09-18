@@ -51,7 +51,24 @@ An array of pane definitions:
 - **`focus`** (`boolean`): Set `true` if this pane receives focus by default.
 - **`isAgent`** (`boolean`): Set `true` to designate this pane as the AI CLI agent pane for automatic agent command overriding.
 
-### `scaffold` (object)
+### `setup` (array of strings | string)
+Shell command(s) executed in the workspace directory upon creating a newly provisioned workspace or worktree:
+```json
+"setup": [
+  "cp .env.example .env",
+  "npm install"
+]
+```
+
+### `cleanup` (array of strings | string)
+Shell command(s) executed in the workspace directory before removing or nuking a workspace:
+```json
+"cleanup": [
+  "docker compose down -v"
+]
+```
+
+### `scaffold` (object, optional/legacy)
 - **`envSource`** (`string | null`): Path to environment file (.env) to copy into the new worktree.
 - **`symlink`** (`string | null`): Path to web server symlink to point to the active worktree (e.g. `'/var/www/my-app'`).
 - **`install`** (`string | boolean | null`): Command executed upon creation to install dependencies (e.g. `'npm install --legacy-peer-deps'`, `'pnpm install'`, `'composer install --no-interaction'`). Set to `false` or `null` to skip dependency installation.
@@ -64,19 +81,35 @@ An array of pane definitions:
 {
   "multiplexer": "tmux",
   "plugins": ["worktree"],
-  "preset": "laravel",
+  "preset": "node",
   "workspace": {
     "labelPrefix": "[API] ",
     "agent": "agy",
     "defaultFocus": "agy"
   },
-  "scaffold": {
-    "envSource": "/path/to/shared/.env",
-    "symlink": "/var/www/my-app",
-    "install": "composer install --no-interaction"
-  }
+  "setup": [
+    "cp .env.example .env",
+    "npm install"
+  ],
+  "cleanup": [
+    "docker compose down -v"
+  ]
 }
 ```
+
+---
+
+## Subcommands
+
+| Subcommand | Aliases | Description |
+|---|---|---|
+| `arise worktree list` | `arise wt ls`, `arise wt` | List active Git worktrees and multiplexer session status |
+| `arise worktree create <branch>` | `arise wt create`, `arise wt new` | Create Git worktree, run setup commands, and boot session |
+| `arise worktree switch [<branch>]` | `arise wt switch`, `arise wt open` | Switch / open existing worktree in session (interactive if omitted) |
+| `arise worktree nuke [<branch>]` | `arise wt rm`, `arise wt delete` | Safely run cleanup commands, close session, remove worktree, and delete branches |
+| `arise sessions` | `arise --sessions` | List active multiplexer sessions |
+| `arise kill [<session>]` | `arise --kill` | Close active or specified session |
+
 
 ---
 

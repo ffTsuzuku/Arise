@@ -41,20 +41,13 @@ module.exports = {
     { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'watch', focus: true, isAgent: true },
   ],
 
-  // 6. Scaffolding and lifecycle hooks
-  hooks: {
-    async onScaffold(ctx) {
-      // Copy .env from root if available
-      ctx.copyFromRoot('.env', '.env');
-
-      // Fetch or build dependencies
-      ctx.exec('cargo check');
-    },
-
-    async onPreNuke(ctx) {
-      // Optional cleanup before worktree removal
-    },
-  },
+  // 6. Setup and cleanup shell commands
+  setup: [
+    'cargo check',
+  ],
+  cleanup: [
+    'cargo clean',
+  ],
 };
 ```
 

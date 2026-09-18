@@ -74,12 +74,13 @@ arise/
     ▼                                                              ▼
 [SESSION CREATION FLOW]                                     [SESSION TEARDOWN / NUKE FLOW]
 4a. Plugin Hook: `onBeforeSession(ctx)`                     5a. Plugin Hook: `onTeardown(ctx)`
-4b. Ensure Multiplexer Installed (`tmux` or `herdr`)            (Worktree plugin handles git removal,
-4c. Driver: `createSession({ name, cwd })`                       branches deletion, & closes sessions)
-4d. Render Declarative Layout via Driver                    5b. Driver: `closeSession(name)`
-4e. Focus Targeted Pane & Session
-4f. Plugin Hook: `onAfterSession(ctx)`
-4g. Driver: `attachOrSwitchSession(name)`
+4b. Run Workspace `setup` commands (if new)                     (Worktree plugin runs `cleanup` commands,
+4c. Ensure Multiplexer Installed (`tmux` or `herdr`)             handles git removal, branch deletion,
+4d. Driver: `createSession({ name, cwd })`                       & closes sessions)
+4e. Render Declarative Layout via Driver                    5b. Run Workspace `cleanup` commands (if any)
+4f. Focus Targeted Pane & Session                           5c. Driver: `closeSession(name)`
+4g. Plugin Hook: `onAfterSession(ctx)`
+4h. Driver: `attachOrSwitchSession(name)`
 ```
 
 ---

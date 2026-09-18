@@ -120,5 +120,78 @@ test('Core Session Lifecycle (Agnostic Orchestrator)', async (t) => {
     assert.equal(closedTarget, 'test_session_target');
   });
 
+  await t.test('executeSessionCreate runs setup commands when workspace is newly provisioned', async () => {
+    const mockDriver = {
+      name: 'mock',
+      isAvailable: () => true,
+      ensureInstalled: async () => true,
+      createSession: ({ name, cwd }) => ({ sessionId: 's1', rootPaneId: 'p1', name }),
+      splitPane: () => 'p2',
+      renamePane: () => {},
+      runInPane: () => {},
+      focusPane: () => {},
+      focusSession: () => {},
+      attachOrSwitchSession: () => {},
+      listSessions: () => [],
+    };
+
+    const targetSubDir = path.join(tmpDir, 'new-workspace');
+    fs.mkdirSync(targetSubDir, { recursive: true });
+
+    const manager = new PluginManager();
+    manager.register({
+      name: 'test-plugin',
+      async resolveTarget() {
+        return {
+          targetDir: targetSubDir,
+          sessionName: 'new-workspace',
+          isNew: true,
+        };
+      },
+    });
+
+    const markerFile = path.join(targetSubDir, 'setup-marker.txt');
+    const config = {
+      multiplexer: 'mock',
+      workspace: {},
+      layout: [{ id: 'main', title: 'main', cmd: null, position: 'root' }],
+      setup: [`touch "${markerFile}"`],
+    };
+
+    await executeSessionCreate({
+      flags: { noAttach: true, rawArgs: [] },
+      config,
+      cwd: tmpDir,
+      pluginManager: manager,
+      driver: mockDriver,
+    });
+
+    assert.ok(fs.existsSync(markerFile), 'setup command should have executed and created the marker file');
+  });
+
+  await t.test('executeSessionClose runs cleanup commands before standard session close', async () => {
+    const mockDriver = {
+      name: 'mock',
+      closeSession: () => true,
+      listSessions: () => [],
+    };
+
+    const markerFile = path.join(tmpDir, 'cleanup-marker.txt');
+    const config = {
+      multiplexer: 'mock',
+      cleanup: [`touch "${markerFile}"`],
+    };
+
+    await executeSessionClose({
+      flags: { cleanupTarget: 'test_session', rawArgs: [] },
+      config,
+      cwd: tmpDir,
+      driver: mockDriver,
+    });
+
+    assert.ok(fs.existsSync(markerFile), 'cleanup command should have executed and created the marker file');
+  });
+
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
+

@@ -98,4 +98,37 @@ test("Git operations and worktree creation", async (t) => {
     git.pruneWorktrees({ bareRepo: bareDir });
     assert.strictEqual(fs.existsSync(wtBarePath), false);
   });
+
+  await t.test("ensureGitExclude adds patterns to .git/info/exclude idempotently", () => {
+    git.ensureGitExclude(repoDir, ".worktrees");
+    const excludePath = path.join(repoDir, ".git", "info", "exclude");
+    assert.ok(fs.existsSync(excludePath));
+    const content1 = fs.readFileSync(excludePath, "utf8");
+    assert.ok(content1.includes(".worktrees"));
+
+    // Call again to ensure it does not duplicate
+    git.ensureGitExclude(repoDir, ".worktrees");
+    const content2 = fs.readFileSync(excludePath, "utf8");
+    const matches = content2.split("\n").filter((l) => l.trim() === ".worktrees");
+    assert.equal(matches.length, 1);
+  });
+
+  await t.test("removeWorktree and deleteLocalBranch accept destructured object arguments", () => {
+    const wtPath = path.join(tmpDir, "feature-obj-wt");
+    git.createWorktree({
+      worktreePath: wtPath,
+      branch: "feature-obj",
+      source: "main",
+      repoDir,
+    });
+    assert.strictEqual(fs.existsSync(wtPath), true);
+
+    git.removeWorktree({ worktreePath: wtPath, force: true, repoDir });
+    git.pruneWorktrees({ repoDir });
+    assert.strictEqual(fs.existsSync(wtPath), false);
+
+    git.deleteLocalBranch({ branch: "feature-obj", force: true, repoDir });
+    assert.strictEqual(git.branchExistsLocally("feature-obj", { repoDir }), false);
+  });
 });
+

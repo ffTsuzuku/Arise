@@ -118,9 +118,33 @@
         "additionalProperties": false
       }
     },
+    "setup": {
+      "description": "Shell command(s) executed in the workspace directory upon creating a new workspace",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "cleanup": {
+      "description": "Shell command(s) executed in the workspace directory upon removing a workspace",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
     "scaffold": {
       "type": "object",
-      "description": "Scaffolding options (environment files, symlinks, dependency installation, etc.)",
+      "description": "Optional legacy scaffolding options",
       "properties": {
         "envSource": {
           "type": ["string", "null"],
@@ -132,7 +156,7 @@
         },
         "install": {
           "type": ["string", "boolean", "null"],
-          "description": "Command to run to install dependencies upon creation (e.g. 'npm install --legacy-peer-deps', 'pnpm install', 'composer install --no-interaction'), or false/null to skip installation."
+          "description": "Command to run to install dependencies upon creation"
         }
       },
       "additionalProperties": true

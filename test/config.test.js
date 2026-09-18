@@ -63,6 +63,45 @@ test('Preset Registry & Resolution', async (t) => {
     assert.equal(skipConfig.scaffold.install, false);
   });
 
+  await t.test('resolves and merges setup and cleanup shell command arrays', () => {
+    // 1. Preset defaults (node preset has setup: ['npm install'])
+    const nodeConfig = resolveConfiguration({ presetName: 'node' }, tmpDir);
+    assert.deepEqual(nodeConfig.setup, ['npm install']);
+    assert.deepEqual(nodeConfig.cleanup, []);
+
+    // 2. Custom setup and cleanup arrays in file config
+    const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arise-setup-cleanup-test-'));
+    try {
+      fs.writeFileSync(
+        path.join(testDir, '.ariserc.json'),
+        JSON.stringify({
+          preset: 'generic',
+          setup: ['cp .env.example .env', 'composer install'],
+          cleanup: ['docker compose down -v'],
+        }),
+        'utf8'
+      );
+      const fileConfig = resolveConfiguration({}, testDir);
+      assert.deepEqual(fileConfig.setup, ['cp .env.example .env', 'composer install']);
+      assert.deepEqual(fileConfig.cleanup, ['docker compose down -v']);
+
+      // 3. Normalizes string setup/cleanup to array
+      fs.writeFileSync(
+        path.join(testDir, '.ariserc.json'),
+        JSON.stringify({
+          setup: 'cargo build',
+          cleanup: 'cargo clean',
+        }),
+        'utf8'
+      );
+      const strConfig = resolveConfiguration({}, testDir);
+      assert.deepEqual(strConfig.setup, ['cargo build']);
+      assert.deepEqual(strConfig.cleanup, ['cargo clean']);
+    } finally {
+      fs.rmSync(testDir, { recursive: true, force: true });
+    }
+  });
+
   await t.test('resolves CLI agent via flag and updates layout agent pane', () => {
     const config = resolveConfiguration({ presetName: 'node', agent: 'claude' }, tmpDir);
     assert.equal(config.workspace.agent, 'claude');
