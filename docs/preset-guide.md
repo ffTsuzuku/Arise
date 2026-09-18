@@ -105,9 +105,10 @@ The wizard will guide you through:
 2. **Storage Scope**:
    - **Global (`~/.config/arise/presets/`)**: Available across every repository and project on your machine.
    - **Local (`.arise/presets/`)**: Committed inside your repository to share with teammates.
-3. **Workspace Setup Commands**: Array of commands run on fresh workspaces (e.g. `cargo build`, `cp .env.example .env`).
-4. **Workspace Cleanup Commands**: Array of commands run on workspace deletion (e.g. `cargo clean`, `docker compose down`).
-5. **Layout Templates**: Choose between 4-pane quadrant, 3-pane split, or 2-pane minimal layout and configure commands.
+3. **Terminal Layout Architecture**:
+   - **🛠️ Custom Pane-by-Pane Builder**: Interactively walk through configuring each pane, its title, startup command, split parent, and split direction.
+   - **Agnostic Layout Templates**: Select 4-pane quadrant (2x2 grid), 3-pane side-stack, 2-pane side-by-side, or 2-pane top/bottom, and enter the command for each pane (or Enter for a clean shell).
+4. **Default Workspace Focus**: Select which pane is focused upon session creation.
 
 ---
 

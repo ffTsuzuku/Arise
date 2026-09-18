@@ -459,6 +459,85 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
   });
+
+  await t.test('ConfigInitWizard.runCreatePresetWizard creates preset with agnostic commands array', async () => {
+    const tempDir = createTempDir('arise-preset-agnostic-');
+    try {
+      const exportPath = await ConfigInitWizard.runCreatePresetWizard(tempDir, {
+        presetName: 'devops-stack',
+        icon: '🐳',
+        exportScope: 'local',
+        layoutTemplate: '4pane',
+        commands: ['hx .', 'docker compose up', 'lazygit', 'claude'],
+      });
+
+      assert.ok(exportPath);
+      const preset = require(exportPath);
+      assert.equal(preset.name, 'devops-stack');
+      assert.equal(preset.icon, '🐳');
+      assert.equal(preset.layout.length, 4);
+      assert.equal(preset.layout[0].cmd, 'hx .');
+      assert.equal(preset.layout[1].cmd, 'docker compose up');
+      assert.equal(preset.layout[2].cmd, 'lazygit');
+      assert.equal(preset.layout[3].cmd, 'claude');
+      assert.equal(preset.layout[3].isAgent, true);
+      assert.equal(preset.workspace.defaultFocus, 'pane-4');
+      assert.equal(preset.workspace.agent, 'claude');
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  await t.test('ConfigInitWizard.runCreatePresetWizard handles 3-pane side stack with agnostic commands', async () => {
+    const tempDir = createTempDir('arise-preset-3pane-');
+    try {
+      const exportPath = await ConfigInitWizard.runCreatePresetWizard(tempDir, {
+        presetName: 'frontend-stack',
+        icon: '✨',
+        exportScope: 'local',
+        layoutTemplate: '3pane',
+        commands: ['zed .', 'npm run dev', 'agy'],
+      });
+
+      assert.ok(exportPath);
+      const preset = require(exportPath);
+      assert.equal(preset.name, 'frontend-stack');
+      assert.equal(preset.layout.length, 3);
+      assert.equal(preset.layout[0].cmd, 'zed .');
+      assert.equal(preset.layout[0].position, 'root');
+      assert.equal(preset.layout[1].cmd, 'npm run dev');
+      assert.equal(preset.layout[1].from, 'pane-1');
+      assert.equal(preset.layout[1].split, 'right');
+      assert.equal(preset.layout[2].cmd, 'agy');
+      assert.equal(preset.layout[2].from, 'pane-2');
+      assert.equal(preset.layout[2].split, 'down');
+      assert.equal(preset.layout[2].isAgent, true);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  await t.test('ConfigInitWizard.runCreatePresetWizard handles custom layout template in non-TTY mode', async () => {
+    const tempDir = createTempDir('arise-preset-custom-');
+    try {
+      const exportPath = await ConfigInitWizard.runCreatePresetWizard(tempDir, {
+        presetName: 'custom-stack',
+        icon: '🛠️',
+        exportScope: 'local',
+        layoutTemplate: 'custom',
+      });
+
+      assert.ok(exportPath);
+      const preset = require(exportPath);
+      assert.equal(preset.name, 'custom-stack');
+      assert.equal(preset.icon, '🛠️');
+      assert.ok(Array.isArray(preset.layout));
+      assert.equal(preset.layout.length, 4);
+      assert.equal(preset.layout[0].position, 'root');
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
 });
 
 

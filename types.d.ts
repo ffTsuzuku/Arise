@@ -271,6 +271,22 @@ export interface InitWizardOptions {
   force?: boolean;
   gitignore?: boolean | null;
   addToGitignore?: boolean | null;
+  initTarget?: 'config' | 'preset';
+  presetOnly?: boolean;
+  presetName?: string;
+  icon?: string;
+  exportScope?: 'global' | 'local';
+  layoutTemplate?: '4pane' | '3pane' | '2pane' | '2pane_horizontal' | 'custom' | string;
+  layout?: PaneDefinition[];
+  commands?: string[];
+  editorCmd?: string;
+  serverCmd?: string;
+  agentCmd?: string;
+  setup?: string[];
+  cleanup?: string[];
+  setupCommands?: string[];
+  cleanupCommands?: string[];
+  exportPreset?: boolean;
 }
 
 export interface SelectOption<T = string> {
