@@ -48,10 +48,10 @@ arise ~/projects/my-api --name api
 arise
 ```
 Interactive options include:
-- 🚀 **Launch session in current directory** (boots in tmux or Herdr)
-- 🔄 **Attach / Switch to existing session**
-- 🌿 **Git Worktree Operations** (Create new worktree, Switch worktree, List worktrees, Nuke worktree)
-- ⚙️ **Initialize / Configure Arise** (interactive setup wizard)
+- **Launch session in current directory** (boots in tmux or Herdr)
+- **Attach / Switch to existing session**
+- **Git Worktree Operations** (Create new worktree, Switch worktree, List worktrees, Nuke worktree)
+- **Initialize / Configure Arise** (interactive setup wizard)
 
 ### 3. Git Worktree Subcommands (`arise wt`)
 ```bash

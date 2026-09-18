@@ -81,6 +81,18 @@ test('Prompt Primitives & Path Completer', async (t) => {
       defaultYes: true,
     });
     assert.equal(confirmRes, true);
+
+    let receivedVal;
+    const validatedTextRes = await promptText({
+      message: 'How many panes (1-6)?',
+      defaultValue: '4',
+      validate: (val) => {
+        receivedVal = val;
+        const num = parseInt(val.trim(), 10);
+        return (!isNaN(num) && num >= 1 && num <= 6) || 'Invalid';
+      },
+    });
+    assert.equal(validatedTextRes, '4');
   });
 });
 
@@ -286,6 +298,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     const focusedPane = config.layout.find(p => p.id === config.workspace.defaultFocus);
     assert.ok(focusedPane, 'Focused pane must exist in layout array');
     assert.equal(focusedPane.focus, true);
+    assert.equal(config.repo, undefined, 'Guided init outside git repo does not include repo topology');
 
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
@@ -401,7 +414,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     try {
       const exportPath = await ConfigInitWizard.runCreatePresetWizard(tempDir, {
         presetName: 'rust-service',
-        icon: '🦀',
+        icon: 'rust',
         exportScope: 'local',
         setupCommands: ['cargo build', 'cp .env.example .env'],
         cleanupCommands: ['cargo clean'],
@@ -418,7 +431,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
 
       const exported = require(exportPath);
       assert.equal(exported.name, 'rust-service');
-      assert.equal(exported.icon, '🦀');
+      assert.equal(exported.icon, 'rust');
       assert.deepEqual(exported.setup, ['cargo build', 'cp .env.example .env']);
       assert.deepEqual(exported.cleanup, ['cargo clean']);
       assert.equal(exported.layout.length, 4);
@@ -435,7 +448,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
       const exportPath = await ConfigInitWizard.run({
         initTarget: 'preset',
         presetName: 'go-microservice',
-        icon: '🐹',
+        icon: 'go',
         exportScope: 'local',
         setup: ['go mod download'],
         cleanup: ['go clean'],
@@ -451,7 +464,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
 
       const preset = require(exportPath);
       assert.equal(preset.name, 'go-microservice');
-      assert.equal(preset.icon, '🐹');
+      assert.equal(preset.icon, 'go');
       assert.deepEqual(preset.setup, ['go mod download']);
       assert.deepEqual(preset.cleanup, ['go clean']);
       assert.equal(preset.layout.length, 2);
@@ -465,7 +478,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     try {
       const exportPath = await ConfigInitWizard.runCreatePresetWizard(tempDir, {
         presetName: 'devops-stack',
-        icon: '🐳',
+        icon: 'docker',
         exportScope: 'local',
         layoutTemplate: '4pane',
         commands: ['hx .', 'docker compose up', 'lazygit', 'claude'],
@@ -474,7 +487,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
       assert.ok(exportPath);
       const preset = require(exportPath);
       assert.equal(preset.name, 'devops-stack');
-      assert.equal(preset.icon, '🐳');
+      assert.equal(preset.icon, 'docker');
       assert.equal(preset.layout.length, 4);
       assert.equal(preset.layout[0].cmd, 'hx .');
       assert.equal(preset.layout[1].cmd, 'docker compose up');
@@ -493,7 +506,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     try {
       const exportPath = await ConfigInitWizard.runCreatePresetWizard(tempDir, {
         presetName: 'frontend-stack',
-        icon: '✨',
+        icon: 'frontend',
         exportScope: 'local',
         layoutTemplate: '3pane',
         commands: ['zed .', 'npm run dev', 'agy'],
@@ -522,7 +535,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     try {
       const exportPath = await ConfigInitWizard.runCreatePresetWizard(tempDir, {
         presetName: 'custom-stack',
-        icon: '🛠️',
+        icon: 'custom',
         exportScope: 'local',
         layoutTemplate: 'custom',
       });
@@ -530,7 +543,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
       assert.ok(exportPath);
       const preset = require(exportPath);
       assert.equal(preset.name, 'custom-stack');
-      assert.equal(preset.icon, '🛠️');
+      assert.equal(preset.icon, 'custom');
       assert.ok(Array.isArray(preset.layout));
       assert.equal(preset.layout.length, 4);
       assert.equal(preset.layout[0].position, 'root');

@@ -12,7 +12,7 @@ A preset is a CommonJS module exporting a JavaScript object conforming to the `P
 module.exports = {
   // 1. Preset identification
   name: 'rust',
-  icon: '🦀',
+  icon: 'terminal',
 
   // 2. Repository defaults
   repo: {
@@ -101,12 +101,12 @@ arise preset new
 ```
 
 The wizard will guide you through:
-1. **Preset Name & Icon**: E.g. `fastapi` with ⚡ or `rust` with 🦀.
+1. **Preset Name & Icon**: E.g. `fastapi` or `rust`.
 2. **Storage Scope**:
    - **Global (`~/.config/arise/presets/`)**: Available across every repository and project on your machine.
    - **Local (`.arise/presets/`)**: Committed inside your repository to share with teammates.
 3. **Terminal Layout Architecture**:
-   - **🛠️ Custom Pane-by-Pane Builder**: Interactively walk through configuring each pane, its title, startup command, split parent, and split direction.
+   - **Custom Pane-by-Pane Builder**: Interactively walk through configuring each pane, its title, startup command, split parent, and split direction.
    - **Agnostic Layout Templates**: Select 4-pane quadrant (2x2 grid), 3-pane side-stack, 2-pane side-by-side, or 2-pane top/bottom, and enter the command for each pane (or Enter for a clean shell).
 4. **Default Workspace Focus**: Select which pane is focused upon session creation.
 

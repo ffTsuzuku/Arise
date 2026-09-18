@@ -1,6 +1,6 @@
 module.exports = {
   name: 'default',
-  icon: '📦',
+  icon: 'terminal',
 
   detect(cwd) {
     return false; // Fallback only, does not auto-match

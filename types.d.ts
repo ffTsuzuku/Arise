@@ -203,7 +203,7 @@ export interface PresetHooks {
 export interface Preset {
   /** Unique name of the preset ('default' or custom user-defined preset name) */
   name: string;
-  /** Display icon or emoji (e.g. '🐍', '⚡', '🦀', '✨', '🐘', '📦') */
+  /** Display icon or identifier */
   icon?: string;
   /** Detection rule to determine if this preset applies to a directory */
   detect?(cwd: string): boolean;
@@ -304,14 +304,44 @@ export interface MultiSelectOption<T = string> {
   selected?: boolean;
 }
 
+export interface PromptSelectOptions<T = any> {
+  message?: string;
+  title?: string;
+  choices?: (SelectOption<T> | string)[];
+  items?: (SelectOption<T> | string)[];
+  defaultIndex?: number;
+  clear?: boolean;
+}
+
+export interface PromptMultiSelectOptions<T = any> {
+  message?: string;
+  title?: string;
+  choices?: (MultiSelectOption<T> | string)[];
+  items?: (MultiSelectOption<T> | string)[];
+  required?: boolean;
+  clear?: boolean;
+}
+
 export interface PromptTextOptions {
   message?: string;
   question?: string;
   defaultValue?: string;
+  placeholder?: string;
   validate?: (val: string) => boolean | string;
   completer?: import('readline').Completer | 'path' | 'dir';
+  clear?: boolean;
 }
+
+export interface PromptConfirmOptions {
+  message?: string;
+  question?: string;
+  defaultYes?: boolean;
+  clear?: boolean;
+}
+
+export declare function clearScreen(): void;
 
 export declare class ConfigInitWizard {
   static run(options?: InitWizardOptions): Promise<string | null>;
 }
+

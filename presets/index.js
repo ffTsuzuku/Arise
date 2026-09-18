@@ -220,10 +220,11 @@ function detectPreset(cwd = process.cwd(), searchDirs = []) {
 function listPresets(searchDirs = []) {
   const customPresets = loadCustomPresets(searchDirs);
   return customPresets.map((cp) => {
-    const icon = cp.icon || cp.emoji || '🧩';
+    const icon = cp.icon || cp.emoji;
+    const label = icon ? `${icon} ${cp.name}` : cp.name;
     return {
       name: cp.name,
-      label: `${icon} ${cp.name}`,
+      label,
       isCustom: true,
       preset: cp,
     };
