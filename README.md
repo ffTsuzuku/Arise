@@ -7,7 +7,9 @@ Universal, multiplexer-agnostic terminal workspace bootstrapper supporting **tmu
 ## Features
 
 - **Multiplexer Agnostic**: Seamlessly boots sessions in either **tmux** or **Herdr** (auto-detected or configured via `--mux`).
-- **Instant Workspace Bootstrapping**: Run `arise` in any directory to spin up an orchestrated 4-pane quadrant layout with your editor, dev server, shell, and AI agent.
+- **Instant Workspace Bootstrapping**: Run `arise` in any directory to spin up an orchestrated terminal layout with your editor, dev server, shell, and AI agent.
+- **In-Place TUI Rendering**: Polished, non-scrolling terminal UI powered by `@clack/prompts` and `picocolors`. Prompt steps replace in place at the top of the viewport without cursor drift or terminal scrolling.
+- **Custom Pane-by-Pane Builder & Layout Templates**: Interactively construct custom layouts with arbitrary split directions and startup commands, or choose from standard grid templates (4-pane quadrant, 3-pane side-stack, 2-pane vertical/horizontal).
 - **Pluggable Architecture**: Core Arise focuses purely on session orchestration and terminal layouts. Workflows like Git worktrees are provided through a lightweight, extensible plugin ecosystem.
 - **Interactive TUI Mode**: Run `arise` with zero arguments for an interactive menu (launch sessions, attach/switch sessions, manage git worktrees, and install AI agent skills).
 - **User-Defined Project Presets**: Completely un-opinionated by default with zero hardcoded presets. Build reusable presets via `arise init preset` and store them globally (`~/.config/arise/presets/`) or locally (`.arise/presets/`).
@@ -19,10 +21,11 @@ Universal, multiplexer-agnostic terminal workspace bootstrapper supporting **tmu
 
 ```bash
 # Install globally via npm
-npm install -g arise
+npm install -g @tsuzuku/arise
+# (or npm install -g arise)
 
 # Or run directly without installing via npx
-npx arise
+npx @tsuzuku/arise
 ```
 
 ---
@@ -53,7 +56,20 @@ Interactive options include:
 - **Git Worktree Operations** (Create new worktree, Switch worktree, List worktrees, Nuke worktree)
 - **Initialize / Configure Arise** (interactive setup wizard)
 
-### 3. Git Worktree Subcommands (`arise wt`)
+### 3. Setup Wizard & Reusable Presets (`arise init`)
+```bash
+# Launch interactive configuration wizard for current project or global config:
+arise init
+
+# Fast-path setup using detected defaults:
+arise init --quick
+
+# Create a new reusable preset interactively:
+arise init preset
+# (or arise preset new)
+```
+
+### 4. Git Worktree Subcommands (`arise wt`)
 ```bash
 # Clean, modern worktree subcommands:
 arise wt create feature/login    # Create worktree, run setup, and boot session
@@ -72,7 +88,7 @@ arise --branch feature/login
 arise --nuke feature-login
 ```
 
-### 4. Manage Sessions
+### 5. Manage Sessions
 ```bash
 # List active sessions:
 arise sessions
@@ -83,7 +99,7 @@ arise kill my-session
 # (or arise --kill my-session)
 ```
 
-### 5. Install AI Agent Skill (Antigravity `agy`, Claude Code, etc.)
+### 6. Install AI Agent Skill (Antigravity `agy`, Claude Code, etc.)
 ```bash
 # Install globally to ~/.agents/skills and link to ~/.gemini/skills:
 arise --install-skill
@@ -131,16 +147,25 @@ Place a `.ariserc.json` in your project root or `~/.config/arise/config.js`:
 ```
 arise/
 ├── package.json
+├── types.d.ts             # TypeScript definitions for core abstractions & flags
+├── arise.schema.json      # JSON Schema for .ariserc.json configuration
 ├── index.js               # Main runner entrypoint
 ├── bin/
-│   └── cli.js             # Executable CLI
+│   └── cli.js             # Executable CLI entrypoint (#!/usr/bin/env node)
 ├── lib/
 │   ├── cli.js             # CLI argument parsing & help output
 │   ├── interactive.js     # Interactive TUI menu & prompt handlers
 │   ├── config.js          # Config discovery & preset merging
-│   ├── layout.js          # Declarative terminal layout renderer
+│   ├── config/
+│   │   └── init.js        # Interactive configuration & preset setup wizard
 │   ├── context.js         # Lifecycle execution context & helpers
+│   ├── git.js             # Git worktree & branch operations
+│   ├── layout.js          # Declarative terminal layout renderer
+│   ├── logger.js          # Logger utility
 │   ├── skill.js           # Agent skill installer for agy/claude
+│   ├── tui/
+│   │   ├── prompt.js      # Terminal prompts & in-place screen management
+│   │   └── ansi.js        # ANSI styling utilities
 │   ├── drivers/           # Terminal multiplexer abstraction
 │   │   ├── index.js       # Driver registry & auto-detection
 │   │   ├── tmux.js        # tmux driver implementation

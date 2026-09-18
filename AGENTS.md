@@ -31,11 +31,16 @@ arise/
 │   ├── cli.js                 # CLI argument parsing, flags, and help text
 │   ├── interactive.js         # Interactive TUI prompt and zero-argument menu handler
 │   ├── config.js              # Config file discovery (.ariserc / arise.config.js) and preset merging
+│   ├── config/
+│   │   └── init.js            # Interactive configuration & preset setup wizard
 │   ├── context.js             # Execution context helper passed into lifecycle hooks
 │   ├── git.js                 # Git operations (worktrees, branches, remote checks, prune)
 │   ├── layout.js              # Declarative terminal layout renderer
 │   ├── logger.js              # Logger utility
 │   ├── skill.js               # Agent skill installer for Antigravity, Claude Code, etc.
+│   ├── tui/
+│   │   ├── prompt.js          # Terminal prompts & in-place screen management
+│   │   └── ansi.js            # ANSI styling utilities
 │   ├── drivers/               # Multiplexer driver abstraction
 │   │   ├── index.js           # Driver registry & auto-resolution
 │   │   ├── tmux.js            # tmux driver implementation
