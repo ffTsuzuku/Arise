@@ -102,9 +102,20 @@ export interface PluginTargetResult {
 
 export interface PluginMenuAction {
   title: string;
+  label?: string;
   description?: string;
+  hint?: string;
+  /** Numbered menu section; defaults to Extensions. */
+  group?: string;
+  /** Single-key shortcut. Reserve l, s, c, q for the built-in menu. */
+  shortcut?: string;
+  /** Render a destructive action in the warm warning color. */
+  danger?: boolean;
+  /** Use a muted background for secondary actions. */
+  subtle?: boolean;
   value: string;
-  handler?: (context: PluginContext) => Promise<void> | void;
+  /** Return true after creating or opening a session to leave the menu. */
+  handler?: (context: PluginContext) => Promise<void | boolean> | void | boolean;
 }
 
 export interface Plugin {
@@ -131,7 +142,7 @@ export interface RepoConfig {
 export interface WorkspaceConfig {
   /** Prefix added to workspace/session labels (e.g. '[BE] ') */
   labelPrefix?: string;
-  /** CLI AI agent to run in the workspace pane ('agy', 'claude', 'aider', 'copilot', 'none', etc.) */
+  /** Explicit agent override ('codex', 'agy', 'claude', custom command, etc.); omit to preserve layout commands. */
   agent?: string | { cmd: string; title?: string; [key: string]: any } | null;
   /** Default pane to focus ('agent', 'agy', 'claude', 'vim', 'logs', 'server', 'shell') */
   defaultFocus?: string;
@@ -259,10 +270,26 @@ export interface AriseConfig {
   configFile?: string | null;
 }
 
+/** Saved .ariserc.json settings. Omitted values inherit from the selected preset. */
+export interface AriseFileConfig {
+  $schema?: string;
+  preset?: string;
+  multiplexer?: MultiplexerType;
+  plugins?: AriseConfig['plugins'];
+  repo?: RepoConfig;
+  workspace?: WorkspaceConfig;
+  layout?: PaneDefinition[];
+  setup?: string | string[];
+  cleanup?: string | string[];
+  scaffold?: ScaffoldConfig;
+  hooks?: PresetHooks;
+}
+
 /** Backward compatibility alias */
 export type WorktreeConfig = AriseConfig;
 
 export interface InitWizardOptions {
+  /** Save the selected/detected defaults without the review screen. Existing files require force or confirmation. */
   quick?: boolean;
   local?: boolean;
   global?: boolean;
@@ -274,9 +301,15 @@ export interface InitWizardOptions {
   initTarget?: 'config' | 'preset';
   presetOnly?: boolean;
   presetName?: string;
+  multiplexer?: MultiplexerType;
+  labelPrefix?: string;
+  agent?: WorkspaceConfig['agent'];
+  focusTarget?: string;
+  repo?: RepoConfig;
+  workspace?: WorkspaceConfig;
   icon?: string;
   exportScope?: 'global' | 'local';
-  layoutTemplate?: '4pane' | '3pane' | '2pane' | '2pane_horizontal' | 'custom' | string;
+  layoutTemplate?: '1pane' | '4pane' | '3pane' | '2pane' | '2pane_horizontal' | 'custom' | string;
   layout?: PaneDefinition[];
   commands?: string[];
   editorCmd?: string;
@@ -294,6 +327,10 @@ export interface SelectOption<T = string> {
   value: T;
   hint?: string;
   description?: string;
+  group?: string;
+  shortcut?: string;
+  danger?: boolean;
+  subtle?: boolean;
 }
 
 export interface MultiSelectOption<T = string> {
@@ -310,6 +347,11 @@ export interface PromptSelectOptions<T = any> {
   choices?: (SelectOption<T> | string)[];
   items?: (SelectOption<T> | string)[];
   defaultIndex?: number;
+  section?: string;
+  hint?: string;
+  keys?: string;
+  pageSize?: number;
+  maxItems?: number;
   clear?: boolean;
 }
 
@@ -326,6 +368,9 @@ export interface PromptTextOptions {
   message?: string;
   question?: string;
   defaultValue?: string;
+  /** Editable value; unlike defaultValue, clearing the field saves an empty string. */
+  initialValue?: string;
+  hint?: string;
   placeholder?: string;
   validate?: (val: string) => boolean | string;
   completer?: import('readline').Completer | 'path' | 'dir';
@@ -343,5 +388,5 @@ export declare function clearScreen(): void;
 
 export declare class ConfigInitWizard {
   static run(options?: InitWizardOptions): Promise<string | null>;
+  static runCreatePresetWizard(cwd: string, options?: InitWizardOptions): Promise<string | null>;
 }
-

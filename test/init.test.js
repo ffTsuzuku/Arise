@@ -7,6 +7,7 @@ const { ANSI, stripAnsi, visibleLength, truncate, wrapAnsiLine, drawBox } = requ
 const { createPathCompleter, promptSelect, promptMultiSelect, promptConfirm, promptText } = require('../lib/tui/prompt');
 const { ConfigInitWizard } = require('../lib/config/init');
 const { parseArgs } = require('../lib/cli');
+const { resolveConfiguration } = require('../lib/config');
 
 function createTempDir(prefix = 'arise-init-test-') {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -146,9 +147,10 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     const config = JSON.parse(jsonStr);
 
     assert.equal(config.preset, 'default');
-    assert.ok(config.repo);
-    assert.ok(config.workspace);
-    assert.equal(config.workspace.agent, 'agy');
+    assert.equal(config.repo, undefined);
+    assert.equal(config.workspace, undefined);
+    assert.equal(config.layout, undefined);
+    assert.equal(resolveConfiguration({}, tempDir).layout[2].cmd, 'agy');
 
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
@@ -174,7 +176,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  await t.test('overwrites existing file when force is true', async () => {
+  await t.test('force permits saving while preserving unrelated existing settings', async () => {
     const tempDir = createTempDir('arise-force-test-');
     const targetFile = path.join(tempDir, '.ariserc.json');
     fs.writeFileSync(targetFile, JSON.stringify({ custom: 'original-value' }));
@@ -189,13 +191,13 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
 
     assert.equal(configPath, targetFile);
     const content = fs.readFileSync(targetFile, 'utf8');
-    assert.ok(!content.includes('original-value'));
+    assert.ok(content.includes('original-value'));
     assert.ok(content.includes('// Arise Local Repository Configuration'));
 
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  await t.test('guided init generates configured layout and properties', async () => {
+  await t.test('repository setup inherits its layout without writing a duplicate', async () => {
     const tempDir = createTempDir('arise-guided-test-');
     const targetFile = path.join(tempDir, '.ariserc.json');
 
@@ -212,10 +214,11 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     const jsonStr = content.replace(/\/\/.*$/gm, '').trim();
     const config = JSON.parse(jsonStr);
 
-    assert.ok(Array.isArray(config.layout));
-    assert.ok(config.layout.length >= 2);
-    assert.equal(config.layout[0].position, 'root');
-    assert.ok(config.layout.some(p => p.isAgent));
+    assert.equal(config.layout, undefined);
+    const effective = resolveConfiguration({}, tempDir);
+    assert.ok(effective.layout.length >= 2);
+    assert.equal(effective.layout[0].position, 'root');
+    assert.ok(effective.layout.some(p => p.isAgent));
 
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
@@ -277,7 +280,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  await t.test('guided init sets focus flag on matching pane definition in layout', async () => {
+  await t.test('repository setup inherits the preset focus without an override', async () => {
     const tempDir = createTempDir('arise-focus-test-');
     const targetFile = path.join(tempDir, '.ariserc.json');
 
@@ -294,8 +297,9 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
     const jsonStr = content.replace(/\/\/.*$/gm, '').trim();
     const config = JSON.parse(jsonStr);
 
-    assert.ok(config.workspace.defaultFocus);
-    const focusedPane = config.layout.find(p => p.id === config.workspace.defaultFocus);
+    assert.equal(config.workspace, undefined);
+    const effective = resolveConfiguration({}, tempDir);
+    const focusedPane = effective.layout.find(p => p.id === effective.workspace.defaultFocus);
     assert.ok(focusedPane, 'Focused pane must exist in layout array');
     assert.equal(focusedPane.focus, true);
     assert.equal(config.repo, undefined, 'Guided init outside git repo does not include repo topology');
@@ -495,7 +499,7 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
       assert.equal(preset.layout[3].cmd, 'claude');
       assert.equal(preset.layout[3].isAgent, true);
       assert.equal(preset.workspace.defaultFocus, 'pane-4');
-      assert.equal(preset.workspace.agent, 'claude');
+      assert.equal(preset.workspace.agent, undefined);
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
@@ -545,12 +549,11 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
       assert.equal(preset.name, 'custom-stack');
       assert.equal(preset.icon, 'custom');
       assert.ok(Array.isArray(preset.layout));
-      assert.equal(preset.layout.length, 4);
+      assert.equal(preset.layout.length, 1);
       assert.equal(preset.layout[0].position, 'root');
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
   });
 });
-
 

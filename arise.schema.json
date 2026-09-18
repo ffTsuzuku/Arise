@@ -18,7 +18,7 @@
     },
     "preset": {
       "type": "string",
-      "description": "Preset name to use ('default' or user-defined preset name, e.g. from ~/.config/arise/presets/ or .arise/presets/)"
+      "description": "Preset name or module path. Omitted layout, workspace, setup, and cleanup settings inherit from this preset. Relative module paths resolve from the configuration file."
     },
     "repo": {
       "type": "object",
@@ -50,11 +50,11 @@
       "properties": {
         "labelPrefix": {
           "type": "string",
-          "description": "Prefix added to workspace/session labels (e.g. '[BE] ')"
+          "description": "Prefix added to workspace/session labels (e.g. '[BE] '). Does not change the layout, agent, or focus."
         },
         "agent": {
           "type": ["string", "object", "null"],
-          "description": "CLI AI agent to run in the workspace pane ('agy', 'claude', 'aider', 'copilot', 'none', or custom command object)",
+          "description": "Explicit command override for agent panes ('codex', 'agy', 'claude', 'aider', 'copilot', 'none', or custom command object). Omit to use the selected preset or custom layout commands; null disables the agent command.",
           "properties": {
             "cmd": {
               "type": ["string", "null"],
@@ -75,7 +75,7 @@
     },
     "layout": {
       "type": "array",
-      "description": "Declarative 4-pane quadrant layout definitions",
+      "description": "Optional complete layout override. Omit to inherit the preset layout; supply an array only when customizing panes.",
       "items": {
         "type": "object",
         "required": ["id", "title"],

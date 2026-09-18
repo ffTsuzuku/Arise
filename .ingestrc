@@ -1,0 +1,24 @@
+// Ingest Local Repository Configuration (.ingestrc)
+// Documentation & guide: https://github.com/tsuzuku/ingest
+//
+// SETTINGS REFERENCE:
+// • repo_name: Custom name in report headers (null = auto-detect)
+// • branches: Target Git branches to analyze for commit activity
+// • diff_mode: When true, extracts git diff stats & line changes (+/-)
+// • max_diff_lines: Max patch lines per commit sent to AI context
+// • retention_days: Report retention expiration in days (default: 30, 0 = keep forever)
+// • default_provider: "antigravity" | "opencode" | "gemini-cli"
+// • prompt: System prompt instructions guiding AI summary generation
+// • report_style: "default" | "system-centric" | "changelog" | "security"
+{
+  "repo_name": "Arise",
+  "branches": [
+    "main"
+  ],
+  "diff_mode": true,
+  "max_diff_lines": 1000,
+  "retention_days": 0,
+  "default_provider": "antigravity",
+  "prompt": "Generate a system-centric developer report: explicit codebase map, subsystem boundaries, causal Problem → Change → Result analysis, before/after behavior changes, component interactions, and commit appendix.",
+  "report_style": "system-centric"
+}

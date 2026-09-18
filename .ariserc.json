@@ -1,22 +1,8 @@
-// Arise Local Repository Configuration (.ariserc.json)
-// Documentation & Guide: https://github.com/tsuzuku/arise
-//
-// SETTINGS REFERENCE:
-// • preset: Preset name ('node' | 'laravel' | 'generic' | custom)
-// • repo.defaultBaseBranch: Default branch to branch off when creating worktrees
-// • repo.protectedBranches: Branches protected from deletion during --nuke
-// • repo.bareRepo: Path to bare repository (if using bare git topology)
-// • repo.worktreesBase: Base directory where worktrees are created
-// • workspace.agent: CLI AI agent ('agy' | 'claude' | 'aider' | 'copilot' | 'none')
-// • workspace.defaultFocus: Pane to focus on workspace boot ('agy' | 'vim' | 'server' | 'shell')
-// • workspace.labelPrefix: Prefix added to Herdr workspace labels (e.g. '[BE] ')
-// • layout: Declarative terminal layout definitions (id, title, cmd, position, from, split, focus, isAgent)
-// • scaffold.envSource: Source .env template file to copy into worktree
-// • scaffold.install: Command to run to install dependencies upon creation
-// • scaffold.symlink: Optional symlink to point to the active worktree
+// Arise Local Repository Configuration
+// Values omitted here are inherited from the selected preset.
 {
   "$schema": "./arise.schema.json",
-  "preset": "node",
+  "preset": "main",
   "repo": {
     "defaultBaseBranch": "main",
     "protectedBranches": [
@@ -28,8 +14,7 @@
     ]
   },
   "workspace": {
-    "agent": "agy",
-    "defaultFocus": "agy",
     "labelPrefix": "[arise] "
-  }
+  },
+  "multiplexer": "herdr"
 }

@@ -70,6 +70,7 @@ function loadPresetFromFile(filePath) {
     const raw = require(resolvedPath);
     const preset = typeof raw === 'function' ? raw() : raw;
     if (!preset || typeof preset !== 'object') return null;
+    if (!['name', 'layout', 'workspace', 'repo', 'setup', 'cleanup', 'scaffold', 'hooks', 'detect'].some((key) => key in preset)) return null;
 
     const baseName = path.basename(resolvedPath, path.extname(resolvedPath));
     const normalizedName = preset.name || (baseName === 'index' ? path.basename(path.dirname(resolvedPath)) : baseName);

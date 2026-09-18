@@ -8,7 +8,7 @@ Universal, multiplexer-agnostic terminal workspace bootstrapper supporting **tmu
 
 - **Multiplexer Agnostic**: Seamlessly boots sessions in either **tmux** or **Herdr** (auto-detected or configured via `--mux`).
 - **Instant Workspace Bootstrapping**: Run `arise` in any directory to spin up an orchestrated terminal layout with your editor, dev server, shell, and AI agent.
-- **In-Place TUI Rendering**: Polished, non-scrolling terminal UI powered by `@clack/prompts` and `picocolors`. Prompt steps replace in place at the top of the viewport without cursor drift or terminal scrolling.
+- **Consistent Terminal Design**: A charcoal canvas, teal selections, numbered sections, contextual help, and keyboard shortcuts throughout the menu, worktree tools, configuration wizard, and preset builder. Screens adapt to the terminal size and restore the terminal after each prompt.
 - **Custom Pane-by-Pane Builder & Layout Templates**: Interactively construct custom layouts with arbitrary split directions and startup commands, or choose from standard grid templates (4-pane quadrant, 3-pane side-stack, 2-pane vertical/horizontal).
 - **Pluggable Architecture**: Core Arise focuses purely on session orchestration and terminal layouts. Workflows like Git worktrees are provided through a lightweight, extensible plugin ecosystem.
 - **Interactive TUI Mode**: Run `arise` with zero arguments for an interactive menu (launch sessions, attach/switch sessions, manage git worktrees, and install AI agent skills).
@@ -56,17 +56,40 @@ Interactive options include:
 - **Git Worktree Operations** (Create new worktree, Switch worktree, List worktrees, Nuke worktree)
 - **Initialize / Configure Arise** (interactive setup wizard)
 
+The menu uses **Sessions**, **Worktrees**, and **Arise** sections. Use ↑/↓ (or j/k) to move, Enter to select, and Escape to return from a submenu. The main menu also accepts `l` to launch, `s` to switch sessions, `n` to create a worktree, `o` to open one, `w` to list worktrees, `x` to clean up, `c` to configure, and `q` to exit. Worktree actions appear when the worktree plugin is enabled in a Git repository.
+
+Multi-select screens use Space to toggle items and Enter to confirm. Long lists support Page Up/Down and Home/End, with details for the highlighted item below the divider. Escape backs out of a setup field or editor; on the review screen it discards the unsaved draft. Cleanup confirmations never proceed on cancellation. Large terminals show the full ASCII logo and generous spacing; smaller terminals use a compact header and scrolling lists. Set `NO_COLOR` to disable colors. Prompt helpers use non-interactive defaults with redirected output or `TERM=dumb`; the main menu prints command guidance and exits.
+
 ### 3. Setup Wizard & Reusable Presets (`arise init`)
 ```bash
-# Launch interactive configuration wizard for current project or global config:
+# Choose a preset, review repository settings, and save:
 arise init
 
-# Fast-path setup using detected defaults:
+# Configure global defaults explicitly:
+arise init --global
+
+# Save a preset reference without the review screen:
+arise init --quick --preset my-preset
+
+# Or use the detected/default preset:
 arise init --quick
 
 # Create a new reusable preset interactively:
 arise init preset
 # (or arise preset new)
+```
+
+Repository setup inherits the preset’s layout, agent commands, focus, and lifecycle commands. After choosing a preset, you can save immediately or edit individual settings on the review screen. A workspace prefix only changes session names; it never sends you through a layout builder. Existing configurations open directly in review and keep their unrelated settings.
+
+**Layout** is an optional editor seeded with the current panes. Add, remove, or edit panes and focus without rebuilding the workspace. **Use preset layout** removes that override. Setup and cleanup commands are edited as complete entries, so commas and shell quoting are preserved. Nothing in the repository configuration is written until **Save configuration**. Creating a reusable preset is a separate flow with its own review and save action; agent-skill installation remains a separate command.
+
+For example, using a preset with a different session prefix only needs:
+
+```json
+{
+  "preset": "my-preset",
+  "workspace": { "labelPrefix": "[API] " }
+}
 ```
 
 ### 4. Git Worktree Subcommands (`arise wt`)
@@ -157,7 +180,9 @@ arise/
 │   ├── interactive.js     # Interactive TUI menu & prompt handlers
 │   ├── config.js          # Config discovery & preset merging
 │   ├── config/
-│   │   └── init.js        # Interactive configuration & preset setup wizard
+│   │   ├── init.js        # Configuration review and separate preset builder
+│   │   ├── draft.js       # Inheritance, validation, and deferred configuration writes
+│   │   └── layout-editor.js # Optional pane editor and starting shapes
 │   ├── context.js         # Lifecycle execution context & helpers
 │   ├── git.js             # Git worktree & branch operations
 │   ├── layout.js          # Declarative terminal layout renderer
@@ -165,6 +190,7 @@ arise/
 │   ├── skill.js           # Agent skill installer for agy/claude
 │   ├── tui/
 │   │   ├── prompt.js      # Terminal prompts & in-place screen management
+│   │   ├── theme.js       # Shared palette, branding, responsive screen renderer
 │   │   └── ansi.js        # ANSI styling utilities
 │   ├── drivers/           # Terminal multiplexer abstraction
 │   │   ├── index.js       # Driver registry & auto-detection

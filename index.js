@@ -5,6 +5,7 @@ const { executeSessionCreate, executeSessionClose } = require('./lib/lifecycle/s
 const { resolveDriver } = require('./lib/drivers');
 const { initPluginManager } = require('./lib/plugins');
 const logger = require('./lib/logger');
+const { printSummary, paint, shortPath } = require('./lib/tui/theme');
 
 async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
   const flags = parseArgs(argv);
@@ -38,6 +39,10 @@ async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
         gitignore: flags.gitignore,
         initTarget: flags.initTarget,
         presetOnly: flags.initTarget === 'preset',
+        presetName: flags.presetName,
+        multiplexer: flags.multiplexer,
+        agent: flags.agent || undefined,
+        focusTarget: flags.focusTarget,
         cwd,
       });
       return;
@@ -69,13 +74,14 @@ async function run(argv = process.argv.slice(2), cwd = process.cwd()) {
 
     if (flags.listSessions) {
       const sessions = driver.listSessions();
-      console.log(`\nActive ${driver.name} sessions (${sessions.length}):`);
+      printSummary('Sessions', [['mux', driver.name], ['active sessions', sessions.length]]);
       if (!sessions.length) {
-        console.log(`  (No active sessions found)`);
+        console.log(paint('  No active sessions found.', 'muted'));
       } else {
         for (const s of sessions) {
-          const activeTag = s.active ? '[attached]' : '';
-          console.log(`  • ${s.name} (${s.cwd}) ${activeTag}`);
+          const activeTag = s.active ? paint('● attached', 'success') : '';
+          console.log(`  ${paint(s.name, 'accent')}  ${activeTag}`);
+          if (s.cwd) console.log(`  ${paint(shortPath(s.cwd), 'muted')}\n`);
         }
       }
       console.log();
