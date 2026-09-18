@@ -9,31 +9,24 @@ This guide describes how to build, test, and register custom language and framew
 A preset is a CommonJS module exporting a JavaScript object conforming to the `Preset` interface in `types.d.ts`:
 
 ```javascript
-const fs = require('fs');
-const path = require('path');
-
 module.exports = {
   // 1. Preset identification
   name: 'rust',
+  icon: '🦀',
 
-  // 2. Auto-detection rule
-  detect(cwd) {
-    return fs.existsSync(path.join(cwd, 'Cargo.toml'));
-  },
-
-  // 3. Repository defaults
+  // 2. Repository defaults
   repo: {
     defaultBaseBranch: 'main',
     protectedBranches: ['main', 'master', 'staging', 'production'],
   },
 
-  // 4. Workspace defaults
+  // 3. Workspace defaults
   workspace: {
     labelPrefix: '',
     defaultFocus: 'agy',
   },
 
-  // 5. Declarative terminal layout
+  // 4. Declarative terminal layout
   layout: [
     { id: 'vim', title: 'vim', cmd: 'vim .', position: 'root' },
     { id: 'watch', title: 'cargo watch', cmd: 'cargo watch -x check', split: 'right', from: 'vim' },
@@ -41,7 +34,7 @@ module.exports = {
     { id: 'agy', title: 'agy', cmd: 'agy', split: 'down', from: 'watch', focus: true, isAgent: true },
   ],
 
-  // 6. Setup and cleanup shell commands
+  // 5. Setup and cleanup shell commands
   setup: [
     'cargo check',
   ],
@@ -69,8 +62,7 @@ my-project/
 └── ...
 ```
 * **Auto-Discovery**: Any `.js` or `.cjs` file in `.arise/presets/` or `.ariserc/presets/` is automatically discovered.
-* **Auto-Detection**: If `detect(cwd)` matches, the custom preset takes priority over built-in presets.
-* **Explicit Usage**: In `.ariserc.json`, set `"preset": "django"`, or run `arise --preset django`.
+* **Usage**: In `.ariserc.json`, set `"preset": "django"`, select it in `arise init`, or run `arise --preset django`.
 
 ### 2. User-Wide Global Presets (`~/.config/arise/presets/`)
 To share custom presets across all projects on your machine:
@@ -81,7 +73,7 @@ To share custom presets across all projects on your machine:
     ├── go.js
     └── rails.js
 ```
-* Custom presets saved here are available in all repositories and listed in `arise --init`.
+* Custom presets saved here are available in all repositories and listed in `arise init`.
 
 ### 3. Direct File Paths or NPM Packages
 You can specify relative or absolute file paths, or installed npm preset packages:
@@ -94,8 +86,6 @@ Or via CLI:
 ```bash
 arise --branch feature/auth --preset ./custom/my-preset.js
 ```
-
----
 
 ---
 
@@ -115,10 +105,9 @@ The wizard will guide you through:
 2. **Storage Scope**:
    - **Global (`~/.config/arise/presets/`)**: Available across every repository and project on your machine.
    - **Local (`.arise/presets/`)**: Committed inside your repository to share with teammates.
-3. **Auto-Detection File Marker**: Optional marker file (e.g. `Cargo.toml`, `go.mod`, `manage.py`, `package.json`).
-4. **Workspace Setup Commands**: Array of commands run on fresh workspaces (e.g. `cargo build`, `cp .env.example .env`).
-5. **Workspace Cleanup Commands**: Array of commands run on workspace deletion (e.g. `cargo clean`, `docker compose down`).
-6. **Layout Templates**: Choose between 4-pane quadrant, 3-pane split, or 2-pane minimal layout and configure commands.
+3. **Workspace Setup Commands**: Array of commands run on fresh workspaces (e.g. `cargo build`, `cp .env.example .env`).
+4. **Workspace Cleanup Commands**: Array of commands run on workspace deletion (e.g. `cargo clean`, `docker compose down`).
+5. **Layout Templates**: Choose between 4-pane quadrant, 3-pane split, or 2-pane minimal layout and configure commands.
 
 ---
 

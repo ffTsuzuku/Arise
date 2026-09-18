@@ -361,7 +361,6 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
       const exported = require(exportPath);
       assert.equal(exported.name, 'fastapi');
       assert.ok(exported.icon);
-      assert.equal(typeof exported.detect, 'function');
       assert.equal(exported.layout.length, 2);
       assert.equal(exported.layout[1].cmd, 'uvicorn main:app --reload');
       assert.ok(Array.isArray(exported.setup));
@@ -379,7 +378,6 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
         presetName: 'rust-service',
         icon: '🦀',
         exportScope: 'local',
-        detectMarker: 'Cargo.toml',
         setupCommands: ['cargo build', 'cp .env.example .env'],
         cleanupCommands: ['cargo clean'],
         layoutTemplate: '4pane',
@@ -396,17 +394,11 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
       const exported = require(exportPath);
       assert.equal(exported.name, 'rust-service');
       assert.equal(exported.icon, '🦀');
-      assert.equal(typeof exported.detect, 'function');
       assert.deepEqual(exported.setup, ['cargo build', 'cp .env.example .env']);
       assert.deepEqual(exported.cleanup, ['cargo clean']);
       assert.equal(exported.layout.length, 4);
       assert.equal(exported.layout[0].cmd, 'nvim .');
       assert.equal(exported.layout[1].cmd, 'cargo watch -x run');
-
-      // Test detect function
-      assert.equal(exported.detect(tempDir), false);
-      fs.writeFileSync(path.join(tempDir, 'Cargo.toml'), '[package]\nname = "test"\n');
-      assert.equal(exported.detect(tempDir), true);
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
@@ -420,7 +412,6 @@ test('ConfigInitWizard Execution & Overwrite Protection', async (t) => {
         presetName: 'go-microservice',
         icon: '🐹',
         exportScope: 'local',
-        detectMarker: 'go.mod',
         setup: ['go mod download'],
         cleanup: ['go clean'],
         layoutTemplate: '2pane',
