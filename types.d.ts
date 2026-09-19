@@ -107,7 +107,7 @@ export interface PluginMenuAction {
   hint?: string;
   /** Numbered menu section; defaults to Extensions. */
   group?: string;
-  /** Single-key shortcut. Reserve l, s, c, q for the built-in menu. */
+  /** Single-key shortcut. Reserve l, s, c, a, q for the built-in menu. */
   shortcut?: string;
   /** Render a destructive action in the warm warning color. */
   danger?: boolean;
@@ -273,6 +273,7 @@ export interface AriseConfig {
 /** Saved .ariserc.json settings. Omitted values inherit from the selected preset. */
 export interface AriseFileConfig {
   $schema?: string;
+  /** Preset name or file path. Relative paths resolve from this config; new worktree JSON copies make them absolute. */
   preset?: string;
   multiplexer?: MultiplexerType;
   plugins?: AriseConfig['plugins'];

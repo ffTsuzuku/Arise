@@ -55,8 +55,11 @@ Interactive options include:
 - **Attach / Switch to existing session**
 - **Git Worktree Operations** (Create new worktree, Switch worktree, List worktrees, Nuke worktree)
 - **Initialize / Configure Arise** (interactive setup wizard)
+- **Install AI-agent README** (install the Arise agent guide globally or in the current directory)
 
-The menu uses **Sessions**, **Worktrees**, and **Arise** sections. Use ↑/↓ (or j/k) to move, Enter to select, and Escape to return from a submenu. The main menu also accepts `l` to launch, `s` to switch sessions, `n` to create a worktree, `o` to open one, `w` to list worktrees, `x` to clean up, `c` to configure, and `q` to exit. Worktree actions appear when the worktree plugin is enabled in a Git repository.
+The menu uses **Sessions**, **Worktrees**, and **Arise** sections. Use ↑/↓ (or j/k) to move, Enter to select, and Escape to return from a submenu. The main menu also accepts `l` to launch, `s` to switch sessions, `n` to create a worktree, `o` to open one, `w` to list worktrees, `x` to clean up, `c` to configure, `a` to install the AI-agent README, and `q` to exit. Worktree actions appear when the worktree plugin is enabled in a Git repository.
+
+**Install AI-agent README** installs the Arise usage guide as `SKILL.md`. Choose **Global** for `~/.agents/skills/arise/` or **This directory** for `.agents/skills/arise/` under the current directory. Escape or Back returns without installing. The same installer is available through `arise --install-skill --global` or `arise --install-skill --local`.
 
 Multi-select screens use Space to toggle items and Enter to confirm. Long lists support Page Up/Down and Home/End, with details for the highlighted item below the divider. Escape backs out of a setup field or editor; on the review screen it discards the unsaved draft. Cleanup confirmations never proceed on cancellation. Large terminals show the full ASCII logo and generous spacing; smaller terminals use a compact header and scrolling lists. Set `NO_COLOR` to disable colors. Prompt helpers use non-interactive defaults with redirected output or `TERM=dumb`; the main menu prints command guidance and exits.
 
@@ -81,7 +84,9 @@ arise init preset
 
 Repository setup inherits the preset’s layout, agent commands, focus, and lifecycle commands. After choosing a preset, you can save immediately or edit individual settings on the review screen. A workspace prefix only changes session names; it never sends you through a layout builder. Existing configurations open directly in review and keep their unrelated settings.
 
-**Layout** is an optional editor seeded with the current panes. Add, remove, or edit panes and focus without rebuilding the workspace. **Use preset layout** removes that override. Setup and cleanup commands are edited as complete entries, so commas and shell quoting are preserved. Nothing in the repository configuration is written until **Save configuration**. Creating a reusable preset is a separate flow with its own review and save action; agent-skill installation remains a separate command.
+New worktrees receive a copy of the caller's configuration. Relative preset paths in JSON configs are made absolute in the copy, so a preset outside Git stays available from the new worktree. The original config is unchanged, and the source preset must remain available.
+
+**Layout** is an optional editor seeded with the current panes. Add, remove, or edit panes and focus without rebuilding the workspace. **Use preset layout** removes that override. Setup and cleanup commands are edited as complete entries, so commas and shell quoting are preserved. Nothing in the repository configuration is written until **Save configuration**. Creating a reusable preset is a separate flow with its own review and save action; agent-skill installation is available separately from the main menu or `--install-skill`.
 
 For example, using a preset with a different session prefix only needs:
 

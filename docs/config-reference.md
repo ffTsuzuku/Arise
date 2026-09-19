@@ -46,6 +46,8 @@ An array of plugins to load (`string` or `object`), e.g. `["worktree"]`. Built-i
 ### `preset` (string)
 Saved relative preset paths resolve from the configuration file; CLI `--preset` paths resolve from the invocation directory. Omitted layout, workspace, setup, and cleanup settings inherit from the preset.
 
+When creating a new worktree, Arise copies the caller's configuration into it. For JSON configs (`.ariserc.json` or `.ariserc`), relative preset paths in that copy become absolute paths based on the original config directory. This keeps untracked or gitignored presets available without copying them. The source config and existing worktree configs are left unchanged; the original preset file must remain available. JavaScript configs are copied verbatim.
+
 The preset to use (`'default'`, custom preset name, or relative/absolute file path such as `'./presets/custom.js'`). When omitted, `arise` auto-detects user-defined presets from `~/.config/arise/presets/` and `.arise/presets/`, falling back to the un-opinionated `'default'` preset.
 
 ### `repo` (object)
