@@ -84,7 +84,7 @@ arise init preset
 
 Repository setup inherits the preset’s layout, agent commands, focus, and lifecycle commands. After choosing a preset, you can save immediately or edit individual settings on the review screen. A workspace prefix only changes session names; it never sends you through a layout builder. Existing configurations open directly in review and keep their unrelated settings.
 
-New worktrees receive a copy of the caller's configuration. Relative preset paths in JSON configs are made absolute in the copy, so a preset outside Git stays available from the new worktree. The original config is unchanged, and the source preset must remain available.
+Arise does not copy configuration files into new worktrees. A worktree's own config takes precedence; otherwise, config discovery falls back to the caller and repository locations. Relative preset paths resolve from the config's original directory, so presets outside Git remain available. Tracked configs still arrive through Git checkout.
 
 **Layout** is an optional editor seeded with the current panes. Add, remove, or edit panes and focus without rebuilding the workspace. **Use preset layout** removes that override. Setup and cleanup commands are edited as complete entries, so commas and shell quoting are preserved. Nothing in the repository configuration is written until **Save configuration**. Creating a reusable preset is a separate flow with its own review and save action; agent-skill installation is available separately from the main menu or `--install-skill`.
 

@@ -7,8 +7,8 @@ const git = require('../lib/git');
 const createWorktreePlugin = require('../lib/plugins/worktree');
 const { resolveConfiguration } = require('../lib/config');
 
-test('new worktree JSON configs retain presets outside the checkout', async (t) => {
-  for (const configName of ['.ariserc.json', '.ariserc']) {
+test('new worktrees use shared configs without copying them', async (t) => {
+  for (const configName of ['.ariserc.json', '.ariserc', 'arise.config.js', '.ariserc.js']) {
     await t.test(configName, async (t) => {
       const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'arise-worktree-config-'));
       t.after(() => fs.rmSync(temp, { recursive: true, force: true }));
@@ -25,7 +25,7 @@ test('new worktree JSON configs retain presets outside the checkout', async (t) 
         layout: ${JSON.stringify(layout)}
       };\n`);
       const configPath = path.join(repoRoot, configName);
-      const source = `{
+      const source = `${configName.endsWith('.js') ? 'module.exports = ' : ''}{
         // This preset is not checked out into new worktrees.
         "preset": "./.arise/presets/custom.js",
         "setup": ["echo setup"],
@@ -46,24 +46,42 @@ test('new worktree JSON configs retain presets outside the checkout', async (t) 
       const config = resolveConfiguration(flags, repoRoot);
       const plugin = createWorktreePlugin();
       const target = await plugin.resolveTarget({ flags, config, cwd: repoRoot });
-      const copiedPath = path.join(target.targetDir, configName);
-      const copied = JSON.parse(fs.readFileSync(copiedPath, 'utf8'));
-      assert.equal(copied.preset, presetPath);
+      const localConfigPath = path.join(target.targetDir, configName);
+      assert.equal(fs.existsSync(localConfigPath), false);
       assert.equal(fs.readFileSync(configPath, 'utf8'), source);
       assert.equal(fs.existsSync(path.join(target.targetDir, '.arise')), false);
 
       const resolved = resolveConfiguration(flags, target.targetDir, repoRoot);
-      assert.equal(resolved.configFile, copiedPath);
+      assert.equal(resolved.configFile, configPath);
       assert.equal(resolved.preset.name, 'custom');
       assert.deepEqual(resolved.layout, config.layout);
       assert.equal(resolved.layout.length, 5);
       assert.deepEqual(resolved.setup, ['echo setup']);
       assert.equal(resolved.workspace.labelPrefix, '[APP] ');
 
+      // Opening directly from the worktree also finds the shared config.
+      const reopened = resolveConfiguration({}, target.targetDir);
+      assert.equal(reopened.configFile, configPath);
+      assert.deepEqual(reopened.layout, config.layout);
+
+      // A config supplied by Git checkout must take precedence and stay intact.
+      const localSource = `${configName.endsWith('.js') ? 'module.exports = ' : ''}{"preset":"default"}\n`;
+      t.mock.method(git, 'createWorktree', ({ worktreePath }) => {
+        fs.mkdirSync(worktreePath, { recursive: true });
+        fs.writeFileSync(path.join(worktreePath, configName), localSource);
+      });
+      const trackedFlags = { branch: 'tracked-config' };
+      const tracked = await plugin.resolveTarget({ flags: trackedFlags, config, cwd: repoRoot });
+      const trackedConfigPath = path.join(tracked.targetDir, configName);
+      assert.equal(fs.readFileSync(trackedConfigPath, 'utf8'), localSource);
+      const trackedConfig = resolveConfiguration(trackedFlags, tracked.targetDir, repoRoot);
+      assert.equal(trackedConfig.configFile, trackedConfigPath);
+      assert.notEqual(trackedConfig.preset.name, 'custom');
+
       // Reopening an existing worktree must preserve its own configuration.
-      fs.writeFileSync(copiedPath, '{"preset":"default"}\n');
+      fs.writeFileSync(localConfigPath, localSource);
       await plugin.resolveTarget({ flags, config, cwd: repoRoot });
-      assert.equal(fs.readFileSync(copiedPath, 'utf8'), '{"preset":"default"}\n');
+      assert.equal(fs.readFileSync(localConfigPath, 'utf8'), localSource);
     });
   }
 });

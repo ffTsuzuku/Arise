@@ -273,7 +273,7 @@ export interface AriseConfig {
 /** Saved .ariserc.json settings. Omitted values inherit from the selected preset. */
 export interface AriseFileConfig {
   $schema?: string;
-  /** Preset name or file path. Relative paths resolve from this config; new worktree JSON copies make them absolute. */
+  /** Preset name or file path. Relative paths resolve from the directory containing the config. */
   preset?: string;
   multiplexer?: MultiplexerType;
   plugins?: AriseConfig['plugins'];
